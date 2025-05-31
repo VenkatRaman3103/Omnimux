@@ -12,14 +12,12 @@ display_mode=${display_mode:-$default_display_mode}
 
 case "$display_mode" in
     "popup")
-        display_command="display-popup -E -w 100% -h 90% -S \"bg=#0c0c0c fg=#0c0c0c\" \"$CURRENT_DIR/script.sh\""
+        tmux bind-key "$key_binding" display-popup -E -w 100% -h 90% -S "bg=#0c0c0c fg=#0c0c0c" "$CURRENT_DIR/script.sh"
         ;;
     "window")
-        display_command="new-window \"$CURRENT_DIR/script.sh\""
+        tmux bind-key "$key_binding" new-window "$CURRENT_DIR/script.sh"
         ;;
     *)
-        display_command="display-popup -E -w 100% -h 90% -S \"bg=#0c0c0c fg=#0c0c0c\" \"$CURRENT_DIR/script.sh\""
+        tmux bind-key "$key_binding" display-popup -E -w 100% -h 90% -S "bg=#0c0c0c fg=#0c0c0c" "$CURRENT_DIR/script.sh"
         ;;
 esac
-
-tmux bind-key "$key_binding" $display_command
