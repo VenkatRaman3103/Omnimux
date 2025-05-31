@@ -1,13 +1,33 @@
 #!/bin/bash
 
-ACTIVE_BG="#444444"
-ACTIVE_FG="#ffffff"
-INACTIVE_BG="#222222"
-INACTIVE_FG="#777777"
-TMUXIFIER_COLOR="\033[38;5;39m"
-ACTIVE_COLOR=""
-ZOXIDE_COLOR="\033[38;5;208m"
+get_tmux_option() {
+    local option="$1"
+    local default_value="$2"
+    local option_value=$(tmux show-option -gqv "$option")
+    echo "${option_value:-$default_value}"
+}
+
+ACTIVE_BG=$(get_tmux_option "@termonaut-active-bg" "#444444")
+ACTIVE_FG=$(get_tmux_option "@termonaut-active-fg" "#ffffff")
+INACTIVE_BG=$(get_tmux_option "@termonaut-inactive-bg" "#222222")
+INACTIVE_FG=$(get_tmux_option "@termonaut-inactive-fg" "#777777")
+TMUXIFIER_COLOR=$(get_tmux_option "@termonaut-tmuxifier-color" "\033[38;5;39m")
+ZOXIDE_COLOR=$(get_tmux_option "@termonaut-zoxide-color" "\033[38;5;208m")
 NORMAL=""
+ACTIVE_COLOR=""
+
+FZF_HEIGHT=$(get_tmux_option "@termonaut-fzf-height" "100%")
+FZF_BORDER=$(get_tmux_option "@termonaut-fzf-border" "none")
+FZF_PREVIEW_POSITION=$(get_tmux_option "@termonaut-fzf-preview-position" "bottom:60%")
+FZF_PREVIEW_WINDOW_POSITION=$(get_tmux_option "@termonaut-fzf-preview-window-position" "right:75%:wrap")
+
+MAX_ZOXIDE_PATHS=$(get_tmux_option "@termonaut-max-zoxide-paths" "20")
+SHOW_PROCESS_COUNT=$(get_tmux_option "@termonaut-show-process-count" "3")
+SHOW_PREVIEW_LINES=$(get_tmux_option "@termonaut-show-preview-lines" "15")
+SHOW_LS_LINES=$(get_tmux_option "@termonaut-show-ls-lines" "20")
+SHOW_GIT_STATUS_LINES=$(get_tmux_option "@termonaut-show-git-status-lines" "10")
+
+DEFAULT_EDITOR=$(get_tmux_option "@termonaut-editor" "${EDITOR:-vim}")
 
 find_tmuxifier() {
     TMUXIFIER_PATHS=(
@@ -47,7 +67,7 @@ get_tmuxifier_sessions() {
 
 get_zoxide_paths() {
     if command -v zoxide &> /dev/null; then
-        zoxide query -l 2>/dev/null | head -20 |
+        zoxide query -l 2>/dev/null | head -"$MAX_ZOXIDE_PATHS" |
             awk '{print $0 "'${TMUXIFIER_COLOR}' '${ZOXIDE_COLOR}'(zoxide)'"\033[0m"'"}' |
             sort
     fi
@@ -261,94 +281,93 @@ edit_tmuxifier_session() {
     local tmuxifier_dir=$(find_tmuxifier)
     local layouts_dir="${TMUXIFIER_LAYOUT_PATH:-$tmuxifier_dir/layouts}"
     local session_file="$layouts_dir/$session.session.sh"
-    local editor="${EDITOR:-vim}"
 
     if [ ! -f "$session_file" ]; then
         tmux display-message "Session file not found: $session_file"
         return 1
     fi
 
-    tmux new-window "$editor '$session_file'"
+    tmux new-window "$DEFAULT_EDITOR '$session_file'"
 }
 
 create_preview_script() {
     local preview_script=$(mktemp -t "tmux_preview_XXXXXX.sh")
     
-    cat > "$preview_script" << 'PREVIEW_EOF'
+    cat > "$preview_script" << PREVIEW_EOF
 #!/bin/bash
 
-session_line="$1"
-session_name=$(echo "$session_line" | awk '{print $1}')
+session_line="\$1"
+session_name=\$(echo "\$session_line" | awk '{print \$1}')
 
-if echo "$session_line" | grep -q "(active)"; then
-    echo -e "\033[1;36mSession:\033[0m \033[1;33m$session_name\033[0m"
+if echo "\$session_line" | grep -q "(active)"; then
+    echo -e "\033[1;36mSession:\033[0m \033[1;33m\$session_name\033[0m"
 
-    active_window=$(tmux list-windows -t "$session_name" -F "#{window_active} #I" 2>/dev/null | grep "^1" | awk '{print $2}')
-    if [ -z "$active_window" ]; then
-        active_window=$(tmux list-windows -t "$session_name" -F "#I" 2>/dev/null | head -1)
+    active_window=\$(tmux list-windows -t "\$session_name" -F "#{window_active} #I" 2>/dev/null | grep "^1" | awk '{print \$2}')
+    if [ -z "\$active_window" ]; then
+        active_window=\$(tmux list-windows -t "\$session_name" -F "#I" 2>/dev/null | head -1)
     fi
 
-    if [ -n "$active_window" ]; then
-        echo -e "\n\033[1;36mPreview of active window $active_window:\033[0m"
-        active_pane=$(tmux list-panes -t "$session_name:$active_window" -F "#{pane_active} #{pane_id}" 2>/dev/null | grep "^1" | awk '{print $2}')
-        if [ -z "$active_pane" ]; then
-            active_pane=$(tmux list-panes -t "$session_name:$active_window" -F "#{pane_id}" 2>/dev/null | head -1)
+    if [ -n "\$active_window" ]; then
+        echo -e "\n\033[1;36mPreview of active window \$active_window:\033[0m"
+        active_pane=\$(tmux list-panes -t "\$session_name:\$active_window" -F "#{pane_active} #{pane_id}" 2>/dev/null | grep "^1" | awk '{print \$2}')
+        if [ -z "\$active_pane" ]; then
+            active_pane=\$(tmux list-panes -t "\$session_name:\$active_window" -F "#{pane_id}" 2>/dev/null | head -1)
         fi
 
-        if [ -n "$active_pane" ]; then
-            tmux capture-pane -e -t "$active_pane" -p 2>/dev/null | head -15
+        if [ -n "\$active_pane" ]; then
+            tmux capture-pane -e -t "\$active_pane" -p 2>/dev/null | head -$SHOW_PREVIEW_LINES
 
             echo -e "\n\033[1;36mRunning processes:\033[0m"
-            pane_pid=$(tmux list-panes -t "$active_pane" -F "#{pane_pid}" 2>/dev/null | head -1)
-            if [ -n "$pane_pid" ]; then
-                ps --ppid $pane_pid -o pid=,cmd= 2>/dev/null | head -3 | while read line; do
-                    if [ -n "$line" ]; then
-                        echo -e "\033[1;35m$(echo $line | awk '{print $1}')\033[0m \033[1;37m$(echo $line | cut -d' ' -f2-)\033[0m"
+            pane_pid=\$(tmux list-panes -t "\$active_pane" -F "#{pane_pid}" 2>/dev/null | head -1)
+            if [ -n "\$pane_pid" ]; then
+                ps --ppid \$pane_pid -o pid=,cmd= 2>/dev/null | head -$SHOW_PROCESS_COUNT | while read line; do
+                    if [ -n "\$line" ]; then
+                        echo -e "\033[1;35m\$(echo \$line | awk '{print \$1}')\033[0m \033[1;37m\$(echo \$line | cut -d' ' -f2-)\033[0m"
                     fi
                 done
             fi
         fi
     fi
-elif echo "$session_line" | grep -q "(tmuxifier)"; then
-    echo -e "\033[1;36mTmuxifier Session:\033[0m \033[1;33m$session_name\033[0m\n"
+elif echo "\$session_line" | grep -q "(tmuxifier)"; then
+    echo -e "\033[1;36mTmuxifier Session:\033[0m \033[1;33m\$session_name\033[0m\n"
 
     # Find tmuxifier directory
     tmuxifier_dir=""
-    for path in "$HOME/.tmuxifier" "$HOME/.local/share/tmuxifier" "/usr/local/share/tmuxifier"; do
-        if [ -d "$path" ]; then
-            tmuxifier_dir="$path"
+    for path in "\$HOME/.tmuxifier" "\$HOME/.local/share/tmuxifier" "/usr/local/share/tmuxifier"; do
+        if [ -d "\$path" ]; then
+            tmuxifier_dir="\$path"
             break
         fi
     done
 
-    if [ -n "$tmuxifier_dir" ]; then
-        layouts_dir="${TMUXIFIER_LAYOUT_PATH:-$tmuxifier_dir/layouts}"
-        session_file="$layouts_dir/$session_name.session.sh"
-        if [ -f "$session_file" ]; then
+    if [ -n "\$tmuxifier_dir" ]; then
+        layouts_dir="\${TMUXIFIER_LAYOUT_PATH:-\$tmuxifier_dir/layouts}"
+        session_file="\$layouts_dir/\$session_name.session.sh"
+        if [ -f "\$session_file" ]; then
             if command -v bat >/dev/null 2>&1; then
-                bat --color=always --style=plain "$session_file" 2>/dev/null
+                bat --color=always --style=plain "\$session_file" 2>/dev/null
             elif command -v highlight >/dev/null 2>&1; then
-                highlight -O ansi "$session_file" 2>/dev/null
+                highlight -O ansi "\$session_file" 2>/dev/null
             else
-                cat "$session_file"
+                cat "\$session_file"
             fi
         else
-            echo "Session file not found: $session_file"
+            echo "Session file not found: \$session_file"
         fi
     else
         echo "Tmuxifier installation not found"
     fi
-elif echo "$session_line" | grep -q "(zoxide)"; then
-    path=$(echo "$session_line" | awk '{print $1}')
-    echo -e "\033[1;36mZoxide Path:\033[0m \033[1;33m$path\033[0m\n"
+elif echo "\$session_line" | grep -q "(zoxide)"; then
+    path=\$(echo "\$session_line" | awk '{print \$1}')
+    echo -e "\033[1;36mZoxide Path:\033[0m \033[1;33m\$path\033[0m\n"
 
-    if [ -d "$path" ]; then
+    if [ -d "\$path" ]; then
         echo -e "\033[1;36mDirectory contents:\033[0m"
-        ls -la "$path" 2>/dev/null | head -20
+        ls -la "\$path" 2>/dev/null | head -$SHOW_LS_LINES
         
         echo -e "\n\033[1;36mGit status (if applicable):\033[0m"
-        if [ -d "$path/.git" ]; then
-            cd "$path" && git status --porcelain 2>/dev/null | head -10
+        if [ -d "\$path/.git" ]; then
+            cd "\$path" && git status --porcelain 2>/dev/null | head -$SHOW_GIT_STATUS_LINES
         else
             echo "Not a git repository"
         fi
@@ -378,8 +397,8 @@ show_windows() {
         --ansi \
         --expect=? \
         --reverse \
-        --height=100% \
-        --border=none \
+        --height="$FZF_HEIGHT" \
+        --border="$FZF_BORDER" \
         --preview="
             session='$session';
             window=\$(echo {} | sed 's/ (active)//');
@@ -398,12 +417,12 @@ show_windows() {
 
             if [ -n \"\$active_pane\" ]; then
                 echo -e \"\033[1;36mPane content preview:\033[0m\";
-                tmux capture-pane -e -t \"\$active_pane\" -p 2>/dev/null | head -15;
+                tmux capture-pane -e -t \"\$active_pane\" -p 2>/dev/null | head -$SHOW_PREVIEW_LINES;
 
                 echo -e \"\n\033[1;36mRunning processes:\033[0m\";
                 pane_pid=\$(tmux list-panes -t \"\$active_pane\" -F \"#{pane_pid}\" 2>/dev/null | head -1);
                 if [ -n \"\$pane_pid\" ]; then
-                    ps --ppid \$pane_pid -o pid=,cmd= 2>/dev/null | head -3 | while read line; do
+                    ps --ppid \$pane_pid -o pid=,cmd= 2>/dev/null | head -$SHOW_PROCESS_COUNT | while read line; do
                         if [ -n \"\$line\" ]; then
                             echo -e \"\033[1;35m\$(echo \$line | awk '{print \$1}')\033[0m \033[1;37m\$(echo \$line | cut -d' ' -f2-)\033[0m\";
                         fi
@@ -411,7 +430,7 @@ show_windows() {
                 fi;
             fi;
         " \
-        --preview-window=right:75%:wrap)
+        --preview-window="$FZF_PREVIEW_WINDOW_POSITION")
 
     local key=$(echo "$result" | head -1)
     local selection=$(echo "$result" | tail -1)
@@ -433,7 +452,7 @@ show_windows() {
 }
 
 show_help() {
-    cat << EOF | fzf --reverse --header "Keyboard Shortcuts" --prompt "Press Escape to return" --border=none --height=100%
+    cat << EOF | fzf --reverse --header "Keyboard Shortcuts" --prompt "Press Escape to return" --border="$FZF_BORDER" --height="$FZF_HEIGHT"
 Enter       Select session (switch to active, load tmuxifier, or create session from zoxide path)
 ctrl-r      Rename selected session
 ctrl-e      Edit tmuxifier session file
@@ -450,7 +469,7 @@ EOF
 show_window_help() {
     local session=$1
 
-    cat << EOF | fzf --reverse --header "Window Shortcuts" --prompt "Press Escape to return" --border=none --height=100%
+    cat << EOF | fzf --reverse --header "Window Shortcuts" --prompt "Press Escape to return" --border="$FZF_BORDER" --height="$FZF_HEIGHT"
 Enter       Switch to selected window
 Escape      Return to sessions
 EOF
@@ -491,10 +510,10 @@ main() {
         --ansi \
         --expect=ctrl-r,ctrl-e,ctrl-t,ctrl-d,ctrl-w,ctrl-f,? \
         --reverse \
-        --height=100% \
-        --border=none \
+        --height="$FZF_HEIGHT" \
+        --border="$FZF_BORDER" \
         --preview="$preview_script {}" \
-        --preview-window=bottom:60%)
+        --preview-window="$FZF_PREVIEW_POSITION")
 
     local key=$(echo "$result" | head -1)
     local selection=$(echo "$result" | tail -1)
