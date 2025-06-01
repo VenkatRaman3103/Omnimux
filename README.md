@@ -34,7 +34,7 @@ If you're using [TPM (Tmux Plugin Manager)](https://github.com/tmux-plugins/tpm)
 1. **Add to your `~/.tmux.conf`:**
 
    ```bash
-   set -g @plugin 'yourusername/termonaut'
+   set -g @plugin 'VenkatRaman3103/Termonaut_Across_the_Tmux_Verse'
    ```
 
 2. **Install the plugin:**
@@ -52,7 +52,7 @@ The default key binding `J` will be automatically configured.
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/yourusername/termonaut.git ~/.tmux/plugins/termonaut
+   git clone https://github.com/VenkatRaman3103/Termonaut_Across_the_Tmux_Verse.git ~/.tmux/plugins/termonaut
    ```
 
 2. **Add to your `~/.tmux.conf`:**
@@ -72,8 +72,8 @@ The default key binding `J` will be automatically configured.
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/yourusername/termonaut.git
-   cd termonaut
+   git clone https://github.com/VenkatRaman3103/Termonaut_Across_the_Tmux_Verse.git
+   cd Termonaut_Across_the_Tmux_Verse
    ```
 
 2. **Make the script executable:**
@@ -86,7 +86,7 @@ The default key binding `J` will be automatically configured.
 
    ```bash
    # Add to your ~/.bashrc or ~/.zshrc
-   export PATH="$PATH:/path/to/termonaut"
+   export PATH="$PATH:/path/to/Termonaut_Across_the_Tmux_Verse"
    ```
 
 4. **Set up tmux key binding manually:**
@@ -213,7 +213,7 @@ set -g @termonaut-editor "vim"
 # ~/.tmux.conf
 
 # Install termonaut via TPM
-set -g @plugin 'yourusername/termonaut'
+set -g @plugin 'VenkatRaman3103/Termonaut_Across_the_Tmux_Verse'
 
 # Termonaut key binding (default is "J", change if desired)
 set -g @termonaut-key "s"
@@ -276,7 +276,7 @@ Each source is color-coded and labeled for easy identification. The preview pane
 # ~/.tmux.conf
 
 # Install termonaut via TPM
-set -g @plugin 'yourusername/termonaut'
+set -g @plugin 'VenkatRaman3103/Termonaut_Across_the_Tmux_Verse'
 
 # Optional: customize the key binding (default is "J")
 set -g @termonaut-key "s"
