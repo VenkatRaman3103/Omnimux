@@ -2,6 +2,9 @@
 
 A powerful, interactive tmux session manager that brings together tmux, tmuxifier, zoxide, and fzf for a seamless terminal workflow experience.
 
+![Screenshot 2025-06-01 235635](https://github.com/user-attachments/assets/556b7bc4-a477-4d9b-9185-2e7fa2720bd6)
+
+
 ## Features ✨
 
 - **Unified Session Management**: Browse and switch between active tmux sessions, tmuxifier layouts, zoxide paths, and find results in one interface
