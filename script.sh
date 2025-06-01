@@ -28,6 +28,8 @@ FZF_WINDOW_PROMPT=$(get_tmux_option "@termonaut-fzf-window-prompt" "> ")
 FZF_POINTER=$(get_tmux_option "@termonaut-fzf-pointer" "▶")
 FZF_WINDOW_POINTER=$(get_tmux_option "@termonaut-fzf-window-pointer" "▶")
 
+PREVIEW_ENABLED=$(get_tmux_option "@termonaut-preview-enabled" "true")
+
 LS_COMMAND=$(get_tmux_option "@termonaut-ls-command" "ls -la")
 
 MAX_ZOXIDE_PATHS=$(get_tmux_option "@termonaut-max-zoxide-paths" "20")
@@ -329,6 +331,18 @@ edit_tmuxifier_session() {
     tmux new-window "$DEFAULT_EDITOR '$session_file'"
 }
 
+toggle_preview() {
+    if [ "$PREVIEW_ENABLED" = "true" ]; then
+        tmux set-option -g "@termonaut-preview-enabled" "false"
+        tmux display-message "Preview disabled"
+    else
+        tmux set-option -g "@termonaut-preview-enabled" "true"
+        tmux display-message "Preview enabled"
+    fi
+    PREVIEW_ENABLED=$(get_tmux_option "@termonaut-preview-enabled" "true")
+    main
+}
+
 create_preview_script() {
     local preview_script=$(mktemp -t "tmux_preview_XXXXXX.sh")
     
@@ -434,25 +448,15 @@ show_windows() {
         return 1
     fi
 
-    local result=$(echo "$windows" | fzf \
-        --header="[Enter:Select ?:Help] Windows for $session" \
-        --prompt="$FZF_WINDOW_PROMPT" \
-        --pointer="$FZF_WINDOW_POINTER" \
-        --ansi \
-        --expect=? \
-        --"$FZF_WINDOW_LAYOUT" \
-        --height="$FZF_HEIGHT" \
-        --border="$FZF_BORDER" \
-        --preview="
+    local fzf_cmd="fzf --header=\"[Enter:Select ?:Help] Windows for $session\" --prompt=\"$FZF_WINDOW_PROMPT\" --pointer=\"$FZF_WINDOW_POINTER\" --ansi --expect=? --\"$FZF_WINDOW_LAYOUT\" --height=\"$FZF_HEIGHT\" --border=\"$FZF_BORDER\""
+
+    if [ "$PREVIEW_ENABLED" = "true" ]; then
+        fzf_cmd="$fzf_cmd --preview=\"
             session='$session';
             window=\$(echo {} | sed 's/ (active)//');
             window_index=\$(echo \"\$window\" | cut -d':' -f1);
 
             echo -e \"\033[1;36mWindow Preview:\033[0m \033[1;33m\$window\033[0m\n\";
-
-            # echo -e \"\033[1;36mPanes:\033[0m\";
-            # tmux list-panes -t \"\$session:\$window_index\" -F \"\033[1;32m#P:\033[0m \033[1;37m#{pane_current_command}\033[0m [\033[1;34m#{pane_active?active:}\033[0m]\" 2>/dev/null | sed 's/\[\]//g';
-            # echo \"\";
 
             active_pane=\$(tmux list-panes -t \"\$session:\$window_index\" -F \"#{pane_active} #{pane_id}\" 2>/dev/null | grep \"^1\" | awk '{print \$2}');
             if [ -z \"\$active_pane\" ]; then
@@ -460,7 +464,6 @@ show_windows() {
             fi;
 
             if [ -n \"\$active_pane\" ]; then
-                # echo -e \"\033[1;36mPane content preview:\033[0m\";
                 tmux capture-pane -e -t \"\$active_pane\" -p 2>/dev/null | head -$SHOW_PREVIEW_LINES;
 
                 echo -e \"\n\033[1;36mRunning processes:\033[0m\";
@@ -473,8 +476,10 @@ show_windows() {
                     done;
                 fi;
             fi;
-        " \
-        --preview-window="$FZF_PREVIEW_WINDOW_POSITION")
+        \" --preview-window=\"$FZF_PREVIEW_WINDOW_POSITION\""  
+    fi
+
+    local result=$(echo "$windows" | eval "$fzf_cmd")
 
     local key=$(echo "$result" | head -1)
     local selection=$(echo "$result" | tail -1)
@@ -496,17 +501,18 @@ show_windows() {
 }
 
 show_help() {
-    cat << EOF | fzf --reverse --header "Keyboard Shortcuts" --prompt "Press Escape to return" --border="$FZF_BORDER" --height="$FZF_HEIGHT"
-Enter       Select session (switch to active, load tmuxifier, or create session from path)
+    local help_text="Enter       Select session (switch to active, load tmuxifier, or create session from path)
 ctrl-r      Rename selected session
 ctrl-e      Edit tmuxifier session file
 ctrl-t      Terminate active tmux session
 ctrl-d      Delete tmuxifier session file
 ctrl-w      Show windows in the selected session
+ctrl-p      Toggle preview mode (currently: $PREVIEW_ENABLED)
 ctrl-f      Filter/search sessions
 ?           Show this help menu
-Escape      Exit
-EOF
+Escape      Exit"
+
+    echo "$help_text" | fzf --reverse --header "Keyboard Shortcuts" --prompt "Press Escape to return" --border="$FZF_BORDER" --height="$FZF_HEIGHT"
     main
 }
 
@@ -543,30 +549,31 @@ main() {
         return 1
     fi
 
-    local preview_script=$(create_preview_script)
+    local preview_script=""
+    local cleanup_preview_func=""
     
-    cleanup_preview() {
-        rm -f "$preview_script" 2>/dev/null
-    }
-    trap cleanup_preview EXIT
+    if [ "$PREVIEW_ENABLED" = "true" ]; then
+        preview_script=$(create_preview_script)
+        cleanup_preview_func() {
+            rm -f "$preview_script" 2>/dev/null
+        }
+        trap cleanup_preview_func EXIT
+    fi
 
-    local result=$(echo "$all_sessions" | fzf \
-        --header="Enter:Select / ctrl-r:Rename / ctrl-e:Edit / ctrl-t:Terminate / ctrl-d:Delete / ctrl-w:Windows / ctrl-f:Filter / ?:Help" \
-        --prompt="$FZF_PROMPT" \
-        --pointer="$FZF_POINTER" \
-        --ansi \
-        --expect=ctrl-r,ctrl-e,ctrl-t,ctrl-d,ctrl-w,ctrl-f,? \
-        --"$FZF_LAYOUT" \
-        --height="$FZF_HEIGHT" \
-        --border="$FZF_BORDER" \
-        --preview="$preview_script {}" \
-        --preview-window="$FZF_PREVIEW_POSITION")
+    local header_text="Enter:Select / ctrl-r:Rename / ctrl-e:Edit / ctrl-t:Terminate / ctrl-d:Delete / ctrl-w:Windows / ctrl-p:Toggle Preview ($PREVIEW_ENABLED) / ctrl-f:Filter / ?:Help"
+    local fzf_cmd="fzf --header=\"$header_text\" --prompt=\"$FZF_PROMPT\" --pointer=\"$FZF_POINTER\" --ansi --expect=ctrl-r,ctrl-e,ctrl-t,ctrl-d,ctrl-w,ctrl-p,ctrl-f,? --\"$FZF_LAYOUT\" --height=\"$FZF_HEIGHT\" --border=\"$FZF_BORDER\""
+
+    if [ "$PREVIEW_ENABLED" = "true" ]; then
+        fzf_cmd="$fzf_cmd --preview=\"$preview_script {}\" --preview-window=\"$FZF_PREVIEW_POSITION\""
+    fi
+
+    local result=$(echo "$all_sessions" | eval "$fzf_cmd")
 
     local key=$(echo "$result" | head -1)
     local selection=$(echo "$result" | tail -1)
 
     if [ -z "$selection" ]; then
-        cleanup_preview
+        [ -n "$cleanup_preview_func" ] && cleanup_preview_func
         return 0
     fi
 
@@ -584,7 +591,7 @@ main() {
                     tmux display-message "Cannot rename find paths"
                 fi
                 sleep 1
-                main
+                mai
             fi
         ;;
         "ctrl-e")
@@ -627,6 +634,9 @@ main() {
                 main
             fi
         ;;
+        "ctrl-p")
+            toggle_preview
+        ;;
         "?")
             show_help
         ;;
@@ -635,7 +645,7 @@ main() {
         ;;
     esac
     
-    cleanup_preview
+    [ -n "$cleanup_preview_func" ] && cleanup_preview_func
 }
 
 if [ -z "$TMUX" ]; then
