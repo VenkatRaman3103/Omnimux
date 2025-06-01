@@ -28,7 +28,7 @@ FZF_WINDOW_PROMPT=$(get_tmux_option "@termonaut-fzf-window-prompt" "> ")
 FZF_POINTER=$(get_tmux_option "@termonaut-fzf-pointer" "▶")
 FZF_WINDOW_POINTER=$(get_tmux_option "@termonaut-fzf-window-pointer" "▶")
 
-PREVIEW_ENABLED=$(get_tmux_option "@termonaut-preview-enabled" "true")
+PREVIEW_ENABLED=$(get_tmux_option "@termonaut-preview-enabled" "false")
 
 LS_COMMAND=$(get_tmux_option "@termonaut-ls-command" "ls -la")
 
@@ -451,35 +451,45 @@ show_windows() {
     local fzf_cmd="fzf --header=\"[Enter:Select ?:Help] Windows for $session\" --prompt=\"$FZF_WINDOW_PROMPT\" --pointer=\"$FZF_WINDOW_POINTER\" --ansi --expect=? --\"$FZF_WINDOW_LAYOUT\" --height=\"$FZF_HEIGHT\" --border=\"$FZF_BORDER\""
 
     if [ "$PREVIEW_ENABLED" = "true" ]; then
-        fzf_cmd="$fzf_cmd --preview=\"
-            session='$session';
-            window=\$(echo {} | sed 's/ (active)//');
-            window_index=\$(echo \"\$window\" | cut -d':' -f1);
+        local window_preview_script=$(mktemp -t "tmux_window_preview_XXXXXX.sh")
+        
+        cat > "$window_preview_script" << WINDOW_PREVIEW_EOF
+#!/bin/bash
+session="$session"
+window=\$(echo "\$1" | sed 's/ (active)//')
+window_index=\$(echo "\$window" | cut -d':' -f1)
 
-            echo -e \"\033[1;36mWindow Preview:\033[0m \033[1;33m\$window\033[0m\n\";
+echo -e "\033[1;36mWindow Preview:\033[0m \033[1;33m\$window\033[0m\n"
 
-            active_pane=\$(tmux list-panes -t \"\$session:\$window_index\" -F \"#{pane_active} #{pane_id}\" 2>/dev/null | grep \"^1\" | awk '{print \$2}');
-            if [ -z \"\$active_pane\" ]; then
-                active_pane=\$(tmux list-panes -t \"\$session:\$window_index\" -F \"#{pane_id}\" 2>/dev/null | head -1);
-            fi;
+active_pane=\$(tmux list-panes -t "\$session:\$window_index" -F "#{pane_active} #{pane_id}" 2>/dev/null | grep "^1" | awk '{print \$2}')
+if [ -z "\$active_pane" ]; then
+    active_pane=\$(tmux list-panes -t "\$session:\$window_index" -F "#{pane_id}" 2>/dev/null | head -1)
+fi
 
-            if [ -n \"\$active_pane\" ]; then
-                tmux capture-pane -e -t \"\$active_pane\" -p 2>/dev/null | head -$SHOW_PREVIEW_LINES;
+if [ -n "\$active_pane" ]; then
+    tmux capture-pane -e -t "\$active_pane" -p 2>/dev/null | head -$SHOW_PREVIEW_LINES
 
-                echo -e \"\n\033[1;36mRunning processes:\033[0m\";
-                pane_pid=\$(tmux list-panes -t \"\$active_pane\" -F \"#{pane_pid}\" 2>/dev/null | head -1);
-                if [ -n \"\$pane_pid\" ]; then
-                    ps --ppid \$pane_pid -o pid=,cmd= 2>/dev/null | head -$SHOW_PROCESS_COUNT | while read line; do
-                        if [ -n \"\$line\" ]; then
-                            echo -e \"\033[1;35m\$(echo \$line | awk '{print \$1}')\033[0m \033[1;37m\$(echo \$line | cut -d' ' -f2-)\033[0m\";
-                        fi
-                    done;
-                fi;
-            fi;
-        \" --preview-window=\"$FZF_PREVIEW_WINDOW_POSITION\""  
+    echo -e "\n\033[1;36mRunning processes:\033[0m"
+    pane_pid=\$(tmux list-panes -t "\$active_pane" -F "#{pane_pid}" 2>/dev/null | head -1)
+    if [ -n "\$pane_pid" ]; then
+        ps --ppid \$pane_pid -o pid=,cmd= 2>/dev/null | head -$SHOW_PROCESS_COUNT | while read line; do
+            if [ -n "\$line" ]; then
+                echo -e "\033[1;35m\$(echo \$line | awk '{print \$1}')\033[0m \033[1;37m\$(echo \$line | cut -d' ' -f2-)\033[0m"
+            fi
+        done
+    fi
+fi
+WINDOW_PREVIEW_EOF
+
+        chmod +x "$window_preview_script"
+        fzf_cmd="$fzf_cmd --preview=\"$window_preview_script {}\" --preview-window=\"$FZF_PREVIEW_WINDOW_POSITION\""
     fi
 
     local result=$(echo "$windows" | eval "$fzf_cmd")
+
+    if [ "$PREVIEW_ENABLED" = "true" ] && [ -n "$window_preview_script" ]; then
+        rm -f "$window_preview_script" 2>/dev/null
+    fi
 
     local key=$(echo "$result" | head -1)
     local selection=$(echo "$result" | tail -1)
