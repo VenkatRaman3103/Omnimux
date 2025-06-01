@@ -23,14 +23,14 @@ ACTIVE_FG=$(get_tmux_option "@termonaut-active-fg" "#ffffff")
 INACTIVE_BG=$(get_tmux_option "@termonaut-inactive-bg" "#222222")
 INACTIVE_FG=$(get_tmux_option "@termonaut-inactive-fg" "#777777")
 
-TMUXIFIER_HEX=$(get_tmux_option "@termonaut-tmuxifier-color" "#333333")
-TMUXIFIER_COLOR=$(hex_to_ansi "$TMUXIFIER_HEX")
+TMUXIFIER_MARK_HEX=$(get_tmux_option "@termonaut-tmuxifier-mark-color" "#333333")
+TMUXIFIER_COLOR=$(hex_to_ansi "$TMUXIFIER_MARK_HEX")
 
-ZOXIDE_HEX=$(get_tmux_option "@termonaut-zoxide-color" "#333333")
-ZOXIDE_COLOR=$(hex_to_ansi "$ZOXIDE_HEX")
+ZOXIDE_MARK_HEX=$(get_tmux_option "@termonaut-zoxide-mark-color" "#333333")
+ZOXIDE_COLOR=$(hex_to_ansi "$ZOXIDE_MARK_HEX")
 
-FIND_HEX=$(get_tmux_option "@termonaut-find-color" "#333333")
-FIND_COLOR=$(hex_to_ansi "$FIND_HEX")
+FIND_MARK_HEX=$(get_tmux_option "@termonaut-find-mark-color" "#333333")
+FIND_COLOR=$(hex_to_ansi "$FIND_MARK_HEX")
 
 TMUX_HEX=$(get_tmux_option "@termonaut-tmux-color" "#333333")
 TMUX_COLOR=$(hex_to_ansi "$TMUX_HEX")
