@@ -451,11 +451,10 @@ terminate_tmux_session() {
         return 1
     fi
 
-    echo -e "y\nn" | fzf --header="Terminate session $session? Select 'y' to confirm" --reverse > /tmp/tmux_confirm.txt
-    local confirm=$(cat /tmp/tmux_confirm.txt 2>/dev/null)
-    rm -f /tmp/tmux_confirm.txt
+    # Fixed: Use proper confirmation dialog
+    local confirmation=$(echo -e "y\nn" | fzf --header="Terminate session $session? Select 'y' to confirm" --reverse)
 
-    if [ "$confirm" = "y" ]; then
+    if [ "$confirmation" = "y" ]; then
         if tmux kill-session -t "$session" 2>/dev/null; then
             tmux display-message "Terminated session: $session"
         else
@@ -804,10 +803,10 @@ main() {
         ;;
         "ctrl-t")
             local session_name=$(echo "$selection" | awk '{print $1}')
-            if echo "$selection" | grep -q "(active)"; then
+            if echo "$selection" | grep -q "(tmux)"; then
                 terminate_tmux_session "$session_name"
             else
-                tmux display-message "Can only terminate active tmux sessions"
+                tmux display-message "Can only terminate tmux sessions"
                 sleep 1
                 main
             fi
