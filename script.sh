@@ -7,17 +7,40 @@ get_tmux_option() {
     echo "${option_value:-$default_value}"
 }
 
+hex_to_ansi() {
+    local hex="$1"
+    hex="${hex#\#}"
+    
+    local r=$((16#${hex:0:2}))
+    local g=$((16#${hex:2:2}))
+    local b=$((16#${hex:4:2}))
+    
+    echo "\033[38;2;${r};${g};${b}m"
+}
+
 ACTIVE_BG=$(get_tmux_option "@termonaut-active-bg" "#444444")
 ACTIVE_FG=$(get_tmux_option "@termonaut-active-fg" "#ffffff")
 INACTIVE_BG=$(get_tmux_option "@termonaut-inactive-bg" "#222222")
 INACTIVE_FG=$(get_tmux_option "@termonaut-inactive-fg" "#777777")
-TMUXIFIER_COLOR=$(get_tmux_option "@termonaut-tmuxifier-color" "\033[38;5;240m")
-ZOXIDE_COLOR=$(get_tmux_option "@termonaut-zoxide-color" "\033[38;5;240m")
-FIND_COLOR=$(get_tmux_option "@termonaut-find-color" "\033[38;5;240m")
-TMUX_COLOR=$(get_tmux_option "@termonaut-tmux-color" "\033[38;5;240m")
-NORMAL="\033[0m"
-ACTIVE_COLOR="\033[38;5;240m"
 
+TMUXIFIER_HEX=$(get_tmux_option "@termonaut-tmuxifier-color" "#333333")
+TMUXIFIER_COLOR=$(hex_to_ansi "$TMUXIFIER_HEX")
+
+ZOXIDE_HEX=$(get_tmux_option "@termonaut-zoxide-color" "#333333")
+ZOXIDE_COLOR=$(hex_to_ansi "$ZOXIDE_HEX")
+
+FIND_HEX=$(get_tmux_option "@termonaut-find-color" "#333333")
+FIND_COLOR=$(hex_to_ansi "$FIND_HEX")
+
+TMUX_HEX=$(get_tmux_option "@termonaut-tmux-color" "#333333")
+TMUX_COLOR=$(hex_to_ansi "$TMUX_HEX")
+TMUX_MARK_HEX=$(get_tmux_option "@termonaut-tmux-mark-color" "#333333")
+TMUX_MARK_COLOR=$(hex_to_ansi "$TMUX_MARK_HEX")
+
+ACTIVE_SESSION_HEX=$(get_tmux_option "@termonaut-active-session-color" "#333333")
+ACTIVE_SESSION_COLOR=$(hex_to_ansi "$ACTIVE_SESSION_HEX")
+
+NORMAL="\033[0m"
 
 FZF_HEIGHT=$(get_tmux_option "@termonaut-fzf-height" "100%")
 FZF_BORDER=$(get_tmux_option "@termonaut-fzf-border" "none")
@@ -72,9 +95,9 @@ get_tmux_sessions() {
     while IFS= read -r session; do
         if [ -n "$session" ]; then 
             if [ "$session" = "$current_session" ]; then
-                current_session_line=$(echo "$session" | awk '{print $0 " '${TMUX_COLOR}'(tmux)'"\033[0m"''${ACTIVE_COLOR}'(active)'"\033[0m"'"}')
+                current_session_line=$(echo "$session" | awk '{print "'${TMUX_COLOR}'" $0 "\033[0m " "'${TMUX_MARK_COLOR}'(tmux)\033[0m " "'${ACTIVE_SESSION_COLOR}'(active)\033[0m"}')
             else
-                other_sessions="${other_sessions}$(echo "$session" | awk '{print $0 " '${TMUX_COLOR}'(tmux)'"\033[0m"'"}')
+                other_sessions="${other_sessions}$(echo "$session" | awk '{print "'${TMUX_COLOR}'" $0 "\033[0m " "'${TMUX_MARK_COLOR}'(tmux)\033[0m"}')
 "
             fi
         fi
@@ -92,6 +115,8 @@ ${other_sessions}"
     
     echo "$sessions" | sed '/^$/d'
 }
+
+#  '{print "'${TMUX_COLOR}'" $0 "\033[0m " "'${TMUX_MARK_COLOR}'(tmux)\033[0m"}')
 
 get_tmuxifier_sessions() {
     local tmuxifier_dir=$(find_tmuxifier)
