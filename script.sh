@@ -18,68 +18,68 @@ hex_to_ansi() {
     printf "\033[38;2;%d;%d;%dm" "$r" "$g" "$b"
 }
 
-ACTIVE_BG=$(get_tmux_option "@termonaut-active-bg" "#444444")
-ACTIVE_FG=$(get_tmux_option "@termonaut-active-fg" "#ffffff")
-INACTIVE_BG=$(get_tmux_option "@termonaut-inactive-bg" "#222222")
-INACTIVE_FG=$(get_tmux_option "@termonaut-inactive-fg" "#777777")
+ACTIVE_BG=$(get_tmux_option "@omnimux-active-bg" "#444444")
+ACTIVE_FG=$(get_tmux_option "@omnimux-active-fg" "#ffffff")
+INACTIVE_BG=$(get_tmux_option "@omnimux-inactive-bg" "#222222")
+INACTIVE_FG=$(get_tmux_option "@omnimux-inactive-fg" "#777777")
 
-TMUXIFIER_MARK_HEX=$(get_tmux_option "@termonaut-tmuxifier-mark-color" "#333333")
+TMUXIFIER_MARK_HEX=$(get_tmux_option "@omnimux-tmuxifier-mark-color" "#333333")
 TMUXIFIER_COLOR=$(hex_to_ansi "$TMUXIFIER_MARK_HEX")
 
-ZOXIDE_MARK_HEX=$(get_tmux_option "@termonaut-zoxide-mark-color" "#333333")
+ZOXIDE_MARK_HEX=$(get_tmux_option "@omnimux-zoxide-mark-color" "#333333")
 ZOXIDE_COLOR=$(hex_to_ansi "$ZOXIDE_MARK_HEX")
 
-FIND_MARK_HEX=$(get_tmux_option "@termonaut-find-mark-color" "#333333")
+FIND_MARK_HEX=$(get_tmux_option "@omnimux-find-mark-color" "#333333")
 FIND_COLOR=$(hex_to_ansi "$FIND_MARK_HEX")
 
-TMUX_HEX=$(get_tmux_option "@termonaut-tmux-color" "#333333")
+TMUX_HEX=$(get_tmux_option "@omnimux-tmux-color" "#333333")
 TMUX_COLOR=$(hex_to_ansi "$TMUX_HEX")
-TMUX_MARK_HEX=$(get_tmux_option "@termonaut-tmux-mark-color" "#333333")
+TMUX_MARK_HEX=$(get_tmux_option "@omnimux-tmux-mark-color" "#333333")
 TMUX_MARK_COLOR=$(hex_to_ansi "$TMUX_MARK_HEX")
 
-ACTIVE_SESSION_HEX=$(get_tmux_option "@termonaut-active-session-color" "#333333")
+ACTIVE_SESSION_HEX=$(get_tmux_option "@omnimux-active-session-color" "#333333")
 ACTIVE_SESSION_COLOR=$(hex_to_ansi "$ACTIVE_SESSION_HEX")
 
-TMUX_SESSION_HEX=$(get_tmux_option "@termonaut-tmux-session-color" "#ffffff")
+TMUX_SESSION_HEX=$(get_tmux_option "@omnimux-tmux-session-color" "#ffffff")
 TMUX_SESSION_COLOR=$(hex_to_ansi "$TMUX_SESSION_HEX")
 
-TMUXIFIER_SESSION_HEX=$(get_tmux_option "@termonaut-tmuxifier-session-color" "#87ceeb")
+TMUXIFIER_SESSION_HEX=$(get_tmux_option "@omnimux-tmuxifier-session-color" "#87ceeb")
 TMUXIFIER_SESSION_COLOR=$(hex_to_ansi "$TMUXIFIER_SESSION_HEX")
 
-ZOXIDE_PATH_HEX=$(get_tmux_option "@termonaut-zoxide-path-color" "#90ee90")
+ZOXIDE_PATH_HEX=$(get_tmux_option "@omnimux-zoxide-path-color" "#90ee90")
 ZOXIDE_PATH_COLOR=$(hex_to_ansi "$ZOXIDE_PATH_HEX")
 
-FIND_PATH_HEX=$(get_tmux_option "@termonaut-find-path-color" "#dda0dd")
+FIND_PATH_HEX=$(get_tmux_option "@omnimux-find-path-color" "#dda0dd")
 FIND_PATH_COLOR=$(hex_to_ansi "$FIND_PATH_HEX")
 
 NORMAL="\033[0m"
 
-FZF_HEIGHT=$(get_tmux_option "@termonaut-fzf-height" "100%")
-FZF_BORDER=$(get_tmux_option "@termonaut-fzf-border" "none")
-FZF_LAYOUT=$(get_tmux_option "@termonaut-fzf-layout" "no-reverse")
-FZF_WINDOW_LAYOUT=$(get_tmux_option "@termonaut-fzf-window-layout" "reverse")
-FZF_PREVIEW_POSITION=$(get_tmux_option "@termonaut-fzf-preview-position" "bottom:60%")
-FZF_PREVIEW_WINDOW_POSITION=$(get_tmux_option "@termonaut-fzf-preview-window-position" "right:75%")
-FZF_PROMPT=$(get_tmux_option "@termonaut-fzf-prompt" "> ")
-FZF_WINDOW_PROMPT=$(get_tmux_option "@termonaut-fzf-window-prompt" "> ")
-FZF_POINTER=$(get_tmux_option "@termonaut-fzf-pointer" "▶")
-FZF_WINDOW_POINTER=$(get_tmux_option "@termonaut-fzf-window-pointer" "▶")
+FZF_HEIGHT=$(get_tmux_option "@omnimux-fzf-height" "100%")
+FZF_BORDER=$(get_tmux_option "@omnimux-fzf-border" "none")
+FZF_LAYOUT=$(get_tmux_option "@omnimux-fzf-layout" "no-reverse")
+FZF_WINDOW_LAYOUT=$(get_tmux_option "@omnimux-fzf-window-layout" "reverse")
+FZF_PREVIEW_POSITION=$(get_tmux_option "@omnimux-fzf-preview-position" "bottom:60%")
+FZF_PREVIEW_WINDOW_POSITION=$(get_tmux_option "@omnimux-fzf-preview-window-position" "right:75%")
+FZF_PROMPT=$(get_tmux_option "@omnimux-fzf-prompt" "> ")
+FZF_WINDOW_PROMPT=$(get_tmux_option "@omnimux-fzf-window-prompt" "> ")
+FZF_POINTER=$(get_tmux_option "@omnimux-fzf-pointer" "▶")
+FZF_WINDOW_POINTER=$(get_tmux_option "@omnimux-fzf-window-pointer" "▶")
 
-PREVIEW_ENABLED=$(get_tmux_option "@termonaut-preview-enabled" "false")
+PREVIEW_ENABLED=$(get_tmux_option "@omnimux-preview-enabled" "false")
 
-LS_COMMAND=$(get_tmux_option "@termonaut-ls-command" "ls -la")
+LS_COMMAND=$(get_tmux_option "@omnimux-ls-command" "ls -la")
 
-MAX_ZOXIDE_PATHS=$(get_tmux_option "@termonaut-max-zoxide-paths" "20")
-MAX_FIND_PATHS=$(get_tmux_option "@termonaut-max-find-paths" "15")
-FIND_BASE_DIR=$(get_tmux_option "@termonaut-find-base-dir" "$HOME")
-FIND_MAX_DEPTH=$(get_tmux_option "@termonaut-find-max-depth" "3")
-FIND_MIN_DEPTH=$(get_tmux_option "@termonaut-find-min-depth" "1")
-SHOW_PROCESS_COUNT=$(get_tmux_option "@termonaut-show-process-count" "3")
-SHOW_PREVIEW_LINES=$(get_tmux_option "@termonaut-show-preview-lines" "15")
-SHOW_LS_LINES=$(get_tmux_option "@termonaut-show-ls-lines" "20")
-SHOW_GIT_STATUS_LINES=$(get_tmux_option "@termonaut-show-git-status-lines" "10")
+MAX_ZOXIDE_PATHS=$(get_tmux_option "@omnimux-max-zoxide-paths" "20")
+MAX_FIND_PATHS=$(get_tmux_option "@omnimux-max-find-paths" "15")
+FIND_BASE_DIR=$(get_tmux_option "@omnimux-find-base-dir" "$HOME")
+FIND_MAX_DEPTH=$(get_tmux_option "@omnimux-find-max-depth" "3")
+FIND_MIN_DEPTH=$(get_tmux_option "@omnimux-find-min-depth" "1")
+SHOW_PROCESS_COUNT=$(get_tmux_option "@omnimux-show-process-count" "3")
+SHOW_PREVIEW_LINES=$(get_tmux_option "@omnimux-show-preview-lines" "15")
+SHOW_LS_LINES=$(get_tmux_option "@omnimux-show-ls-lines" "20")
+SHOW_GIT_STATUS_LINES=$(get_tmux_option "@omnimux-show-git-status-lines" "10")
 
-DEFAULT_EDITOR=$(get_tmux_option "@termonaut-editor" "${EDITOR:-vim}")
+DEFAULT_EDITOR=$(get_tmux_option "@omnimux-editor" "${EDITOR:-vim}")
 
 find_tmuxifier() {
     TMUXIFIER_PATHS=(
@@ -503,13 +503,13 @@ edit_tmuxifier_session() {
 
 toggle_preview() {
     if [ "$PREVIEW_ENABLED" = "true" ]; then
-        tmux set-option -g "@termonaut-preview-enabled" "false"
+        tmux set-option -g "@omnimux-preview-enabled" "false"
         tmux display-message "Preview disabled"
     else
-        tmux set-option -g "@termonaut-preview-enabled" "true"
+        tmux set-option -g "@omnimux-preview-enabled" "true"
         tmux display-message "Preview enabled"
     fi
-    PREVIEW_ENABLED=$(get_tmux_option "@termonaut-preview-enabled" "true")
+    PREVIEW_ENABLED=$(get_tmux_option "@omnimux-preview-enabled" "true")
     main
 }
 

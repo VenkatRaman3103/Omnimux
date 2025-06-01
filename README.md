@@ -1,4 +1,4 @@
-# Termonaut 🚀
+# Omnimux 🚀
 
 A powerful, interactive tmux session manager that brings together tmux, tmuxifier, zoxide, and fzf for a seamless terminal workflow experience.
 
@@ -37,7 +37,7 @@ If you're using [TPM (Tmux Plugin Manager)](https://github.com/tmux-plugins/tpm)
 1. **Add to your `~/.tmux.conf`:**
 
    ```bash
-   set -g @plugin 'VenkatRaman3103/Termonaut_Across_the_Tmux_Verse'
+   set -g @plugin 'VenkatRaman3103/Omnimux'
    ```
 
 2. **Install the plugin:**
@@ -55,14 +55,14 @@ The default key binding `J` will be automatically configured.
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/VenkatRaman3103/Termonaut_Across_the_Tmux_Verse.git ~/.tmux/plugins/termonaut
+   git clone https://github.com/VenkatRaman3103/Omnimux.git ~/.tmux/plugins/omnimux
    ```
 
 2. **Add to your `~/.tmux.conf`:**
 
    ```bash
-   # Source termonaut plugin
-   run-shell ~/.tmux/plugins/termonaut/termonaut.tmux
+   # Source omnimux plugin
+   run-shell ~/.tmux/plugins/omnimux/omnimux.tmux
    ```
 
 3. **Reload tmux configuration:**
@@ -75,8 +75,8 @@ The default key binding `J` will be automatically configured.
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/VenkatRaman3103/Termonaut_Across_the_Tmux_Verse.git
-   cd Termonaut_Across_the_Tmux_Verse
+   git clone https://github.com/VenkatRaman3103/Omnimux.git
+   cd Omnimux
    ```
 
 2. **Make the script executable:**
@@ -89,7 +89,7 @@ The default key binding `J` will be automatically configured.
 
    ```bash
    # Add to your ~/.bashrc or ~/.zshrc
-   export PATH="$PATH:/path/to/Termonaut_Across_the_Tmux_Verse"
+   export PATH="$PATH:/path/to/Omnimux"
    ```
 
 4. **Set up tmux key binding manually:**
@@ -102,7 +102,7 @@ The default key binding `J` will be automatically configured.
 
 ### Basic Usage
 
-**Default Key Binding**: Press `J` from within any tmux session to launch Termonaut.
+**Default Key Binding**: Press `J` from within any tmux session to launch Omnimux.
 
 You can also run the script directly:
 
@@ -140,110 +140,110 @@ You can also run the script directly:
 
 ## Display Modes 🖥️
 
-Termonaut supports two display modes:
+Omnimux supports two display modes:
 
 ### Popup Mode (Default)
 
-- Opens Termonaut in a tmux popup overlay
+- Opens Omnimux in a tmux popup overlay
 - Non-intrusive and quick to access
 - Customizable size and border colors
 - Perfect for quick session switching
 
 ### Window Mode
 
-- Opens Termonaut in a new tmux window
+- Opens Omnimux in a new tmux window
 - Provides more space for complex operations
 - Useful when working with many sessions
 - Can be easily navigated back to
 
 ```bash
 # Switch to window mode
-set -g @termonaut-display-mode "window"
+set -g @omnimux-display-mode "window"
 ```
 
 ## Complete Configuration Reference ⚙️
 
 ### Basic Setup Options
 
-| Option                     | Default     | Description                       |
-| -------------------------- | ----------- | --------------------------------- |
-| `@termonaut-key`           | `"J"`       | Key binding to launch Termonaut   |
-| `@termonaut-display-mode`  | `"popup"`   | Display mode: `popup` or `window` |
-| `@termonaut-window-width`  | `"100%"`    | Popup window width                |
-| `@termonaut-window-height` | `"100%"`    | Popup window height               |
-| `@termonaut-border-fg`     | `"#0c0c0c"` | Popup border foreground color     |
-| `@termonaut-border-bg`     | `"#0c0c0c"` | Popup border background color     |
+| Option                   | Default     | Description                       |
+| ------------------------ | ----------- | --------------------------------- |
+| `@omnimux-key`           | `"J"`       | Key binding to launch Omnimux     |
+| `@omnimux-display-mode`  | `"popup"`   | Display mode: `popup` or `window` |
+| `@omnimux-window-width`  | `"100%"`    | Popup window width                |
+| `@omnimux-window-height` | `"100%"`    | Popup window height               |
+| `@omnimux-border-fg`     | `"#0c0c0c"` | Popup border foreground color     |
+| `@omnimux-border-bg`     | `"#0c0c0c"` | Popup border background color     |
 
 ### Visual Appearance Colors
 
-| Option                   | Default     | Description                   |
-| ------------------------ | ----------- | ----------------------------- |
-| `@termonaut-active-bg`   | `"#444444"` | Active selection background   |
-| `@termonaut-active-fg`   | `"#ffffff"` | Active selection foreground   |
-| `@termonaut-inactive-bg` | `"#222222"` | Inactive selection background |
-| `@termonaut-inactive-fg` | `"#777777"` | Inactive selection foreground |
+| Option                 | Default     | Description                   |
+| ---------------------- | ----------- | ----------------------------- |
+| `@omnimux-active-bg`   | `"#444444"` | Active selection background   |
+| `@omnimux-active-fg`   | `"#ffffff"` | Active selection foreground   |
+| `@omnimux-inactive-bg` | `"#222222"` | Inactive selection background |
+| `@omnimux-inactive-fg` | `"#777777"` | Inactive selection foreground |
 
 ### Source Type Colors
 
-| Option                            | Default     | Description                    |
-| --------------------------------- | ----------- | ------------------------------ |
-| `@termonaut-tmuxifier-mark-color` | `"#333333"` | Tmuxifier mark color           |
-| `@termonaut-zoxide-mark-color`    | `"#333333"` | Zoxide mark color              |
-| `@termonaut-find-mark-color`      | `"#333333"` | Find mark color                |
-| `@termonaut-tmux-color`           | `"#333333"` | Tmux session color             |
-| `@termonaut-tmux-mark-color`      | `"#333333"` | Tmux mark color                |
-| `@termonaut-active-session-color` | `"#333333"` | Active session indicator color |
+| Option                          | Default     | Description                    |
+| ------------------------------- | ----------- | ------------------------------ |
+| `@omnimux-tmuxifier-mark-color` | `"#333333"` | Tmuxifier mark color           |
+| `@omnimux-zoxide-mark-color`    | `"#333333"` | Zoxide mark color              |
+| `@omnimux-find-mark-color`      | `"#333333"` | Find mark color                |
+| `@omnimux-tmux-color`           | `"#333333"` | Tmux session color             |
+| `@omnimux-tmux-mark-color`      | `"#333333"` | Tmux mark color                |
+| `@omnimux-active-session-color` | `"#333333"` | Active session indicator color |
 
 ### Content Colors
 
-| Option                               | Default     | Description                  |
-| ------------------------------------ | ----------- | ---------------------------- |
-| `@termonaut-tmux-session-color`      | `"#ffffff"` | Tmux session name color      |
-| `@termonaut-tmuxifier-session-color` | `"#87ceeb"` | Tmuxifier session name color |
-| `@termonaut-zoxide-path-color`       | `"#90ee90"` | Zoxide path color            |
-| `@termonaut-find-path-color`         | `"#dda0dd"` | Find path color              |
+| Option                             | Default     | Description                  |
+| ---------------------------------- | ----------- | ---------------------------- |
+| `@omnimux-tmux-session-color`      | `"#ffffff"` | Tmux session name color      |
+| `@omnimux-tmuxifier-session-color` | `"#87ceeb"` | Tmuxifier session name color |
+| `@omnimux-zoxide-path-color`       | `"#90ee90"` | Zoxide path color            |
+| `@omnimux-find-path-color`         | `"#dda0dd"` | Find path color              |
 
 ### FZF Configuration
 
-| Option                          | Default        | Description              |
-| ------------------------------- | -------------- | ------------------------ |
-| `@termonaut-fzf-height`         | `"100%"`       | FZF interface height     |
-| `@termonaut-fzf-border`         | `"none"`       | FZF border style         |
-| `@termonaut-fzf-layout`         | `"no-reverse"` | Main FZF layout          |
-| `@termonaut-fzf-window-layout`  | `"reverse"`    | Window selection layout  |
-| `@termonaut-fzf-prompt`         | `"> "`         | Main interface prompt    |
-| `@termonaut-fzf-window-prompt`  | `"> "`         | Window selection prompt  |
-| `@termonaut-fzf-pointer`        | `"▶"`         | Main interface pointer   |
-| `@termonaut-fzf-window-pointer` | `"▶"`         | Window selection pointer |
+| Option                        | Default        | Description              |
+| ----------------------------- | -------------- | ------------------------ |
+| `@omnimux-fzf-height`         | `"100%"`       | FZF interface height     |
+| `@omnimux-fzf-border`         | `"none"`       | FZF border style         |
+| `@omnimux-fzf-layout`         | `"no-reverse"` | Main FZF layout          |
+| `@omnimux-fzf-window-layout`  | `"reverse"`    | Window selection layout  |
+| `@omnimux-fzf-prompt`         | `"> "`         | Main interface prompt    |
+| `@omnimux-fzf-window-prompt`  | `"> "`         | Window selection prompt  |
+| `@omnimux-fzf-pointer`        | `"▶"`         | Main interface pointer   |
+| `@omnimux-fzf-window-pointer` | `"▶"`         | Window selection pointer |
 
 ### Preview Settings
 
-| Option                                   | Default        | Description                         |
-| ---------------------------------------- | -------------- | ----------------------------------- |
-| `@termonaut-preview-enabled`             | `"false"`      | Enable/disable preview pane         |
-| `@termonaut-fzf-preview-position`        | `"bottom:60%"` | Preview position for main interface |
-| `@termonaut-fzf-preview-window-position` | `"right:75%"`  | Preview position for windows        |
+| Option                                 | Default        | Description                         |
+| -------------------------------------- | -------------- | ----------------------------------- |
+| `@omnimux-preview-enabled`             | `"false"`      | Enable/disable preview pane         |
+| `@omnimux-fzf-preview-position`        | `"bottom:60%"` | Preview position for main interface |
+| `@omnimux-fzf-preview-window-position` | `"right:75%"`  | Preview position for windows        |
 
 ### Path & Search Settings
 
-| Option                        | Default   | Description                    |
-| ----------------------------- | --------- | ------------------------------ |
-| `@termonaut-max-zoxide-paths` | `"20"`    | Maximum zoxide paths to show   |
-| `@termonaut-max-find-paths`   | `"15"`    | Maximum find results to show   |
-| `@termonaut-find-base-dir`    | `"$HOME"` | Base directory for find search |
-| `@termonaut-find-max-depth`   | `"3"`     | Maximum depth for find search  |
-| `@termonaut-find-min-depth`   | `"1"`     | Minimum depth for find search  |
+| Option                      | Default   | Description                    |
+| --------------------------- | --------- | ------------------------------ |
+| `@omnimux-max-zoxide-paths` | `"20"`    | Maximum zoxide paths to show   |
+| `@omnimux-max-find-paths`   | `"15"`    | Maximum find results to show   |
+| `@omnimux-find-base-dir`    | `"$HOME"` | Base directory for find search |
+| `@omnimux-find-max-depth`   | `"3"`     | Maximum depth for find search  |
+| `@omnimux-find-min-depth`   | `"1"`     | Minimum depth for find search  |
 
 ### Display & Content Settings
 
-| Option                             | Default            | Description                            |
-| ---------------------------------- | ------------------ | -------------------------------------- |
-| `@termonaut-ls-command`            | `"ls -la"`         | Command for directory listings         |
-| `@termonaut-show-process-count`    | `"3"`              | Number of processes to show in preview |
-| `@termonaut-show-preview-lines`    | `"15"`             | Lines to show in session preview       |
-| `@termonaut-show-ls-lines`         | `"20"`             | Lines to show in directory listings    |
-| `@termonaut-show-git-status-lines` | `"10"`             | Lines to show in git status            |
-| `@termonaut-editor`                | `"${EDITOR:-vim}"` | Editor for tmuxifier files             |
+| Option                           | Default            | Description                            |
+| -------------------------------- | ------------------ | -------------------------------------- |
+| `@omnimux-ls-command`            | `"ls -la"`         | Command for directory listings         |
+| `@omnimux-show-process-count`    | `"3"`              | Number of processes to show in preview |
+| `@omnimux-show-preview-lines`    | `"15"`             | Lines to show in session preview       |
+| `@omnimux-show-ls-lines`         | `"20"`             | Lines to show in directory listings    |
+| `@omnimux-show-git-status-lines` | `"10"`             | Lines to show in git status            |
+| `@omnimux-editor`                | `"${EDITOR:-vim}"` | Editor for tmuxifier files             |
 
 ## Example Configuration 📝
 
@@ -252,65 +252,65 @@ Here's a complete example configuration showing all available options:
 ```bash
 # ~/.tmux.conf
 
-# Install termonaut via TPM
-set -g @plugin 'VenkatRaman3103/Termonaut_Across_the_Tmux_Verse'
+# Install omnimux via TPM
+set -g @plugin 'VenkatRaman3103/Omnimux'
 
 # === Basic Setup ===
-set -g @termonaut-key "s"                    # Change key binding from J to s
-set -g @termonaut-display-mode "popup"       # Use popup mode (default)
-set -g @termonaut-window-width "90%"         # Popup width
-set -g @termonaut-window-height "85%"        # Popup height
-set -g @termonaut-border-fg "#ff6b6b"        # Red border foreground
-set -g @termonaut-border-bg "#2d3748"        # Dark border background
+set -g @omnimux-key "s"                    # Change key binding from J to s
+set -g @omnimux-display-mode "popup"       # Use popup mode (default)
+set -g @omnimux-window-width "90%"         # Popup width
+set -g @omnimux-window-height "85%"        # Popup height
+set -g @omnimux-border-fg "#ff6b6b"        # Red border foreground
+set -g @omnimux-border-bg "#2d3748"        # Dark border background
 
 # === Visual Appearance ===
-set -g @termonaut-active-bg "#2d3748"        # Dark blue active background
-set -g @termonaut-active-fg "#e2e8f0"        # Light gray active foreground
-set -g @termonaut-inactive-bg "#1a202c"      # Darker inactive background
-set -g @termonaut-inactive-fg "#718096"      # Medium gray inactive foreground
+set -g @omnimux-active-bg "#2d3748"        # Dark blue active background
+set -g @omnimux-active-fg "#e2e8f0"        # Light gray active foreground
+set -g @omnimux-inactive-bg "#1a202c"      # Darker inactive background
+set -g @omnimux-inactive-fg "#718096"      # Medium gray inactive foreground
 
 # === Source Type Mark Colors ===
-set -g @termonaut-tmuxifier-mark-color "#4299e1"  # Blue for tmuxifier
-set -g @termonaut-zoxide-mark-color "#ed8936"     # Orange for zoxide
-set -g @termonaut-find-mark-color "#48bb78"       # Green for find
-set -g @termonaut-tmux-mark-color "#9f7aea"       # Purple for tmux
-set -g @termonaut-active-session-color "#f56565"  # Red for active session
+set -g @omnimux-tmuxifier-mark-color "#4299e1"  # Blue for tmuxifier
+set -g @omnimux-zoxide-mark-color "#ed8936"     # Orange for zoxide
+set -g @omnimux-find-mark-color "#48bb78"       # Green for find
+set -g @omnimux-tmux-mark-color "#9f7aea"       # Purple for tmux
+set -g @omnimux-active-session-color "#f56565"  # Red for active session
 
 # === Content Colors ===
-set -g @termonaut-tmux-session-color "#ffffff"       # White tmux sessions
-set -g @termonaut-tmuxifier-session-color "#87ceeb"  # Sky blue tmuxifier
-set -g @termonaut-zoxide-path-color "#90ee90"        # Light green zoxide paths
-set -g @termonaut-find-path-color "#dda0dd"          # Plum find paths
+set -g @omnimux-tmux-session-color "#ffffff"       # White tmux sessions
+set -g @omnimux-tmuxifier-session-color "#87ceeb"  # Sky blue tmuxifier
+set -g @omnimux-zoxide-path-color "#90ee90"        # Light green zoxide paths
+set -g @omnimux-find-path-color "#dda0dd"          # Plum find paths
 
 # === FZF Interface ===
-set -g @termonaut-fzf-height "100%"            # Full height
-set -g @termonaut-fzf-border "rounded"         # Rounded borders
-set -g @termonaut-fzf-layout "no-reverse"      # Normal layout
-set -g @termonaut-fzf-window-layout "reverse"  # Reverse for windows
-set -g @termonaut-fzf-prompt "🚀 "             # Rocket emoji prompt
-set -g @termonaut-fzf-window-prompt "📋 "      # Clipboard emoji for windows
-set -g @termonaut-fzf-pointer "→"              # Arrow pointer
-set -g @termonaut-fzf-window-pointer "▸"       # Different arrow for windows
+set -g @omnimux-fzf-height "100%"            # Full height
+set -g @omnimux-fzf-border "rounded"         # Rounded borders
+set -g @omnimux-fzf-layout "no-reverse"      # Normal layout
+set -g @omnimux-fzf-window-layout "reverse"  # Reverse for windows
+set -g @omnimux-fzf-prompt "🚀 "             # Rocket emoji prompt
+set -g @omnimux-fzf-window-prompt "📋 "      # Clipboard emoji for windows
+set -g @omnimux-fzf-pointer "→"              # Arrow pointer
+set -g @omnimux-fzf-window-pointer "▸"       # Different arrow for windows
 
 # === Preview Settings ===
-set -g @termonaut-preview-enabled "true"                    # Enable preview
-set -g @termonaut-fzf-preview-position "right:60%"          # Preview on right
-set -g @termonaut-fzf-preview-window-position "bottom:50%"  # Bottom for windows
+set -g @omnimux-preview-enabled "true"                    # Enable preview
+set -g @omnimux-fzf-preview-position "right:60%"          # Preview on right
+set -g @omnimux-fzf-preview-window-position "bottom:50%"  # Bottom for windows
 
 # === Path & Search ===
-set -g @termonaut-max-zoxide-paths "25"            # More zoxide paths
-set -g @termonaut-max-find-paths "20"              # More find results
-set -g @termonaut-find-base-dir "$HOME/projects"   # Search in projects
-set -g @termonaut-find-max-depth "4"               # Deeper search
-set -g @termonaut-find-min-depth "2"               # Skip immediate subdirs
+set -g @omnimux-max-zoxide-paths "25"            # More zoxide paths
+set -g @omnimux-max-find-paths "20"              # More find results
+set -g @omnimux-find-base-dir "$HOME/projects"   # Search in projects
+set -g @omnimux-find-max-depth "4"               # Deeper search
+set -g @omnimux-find-min-depth "2"               # Skip immediate subdirs
 
 # === Display Settings ===
-set -g @termonaut-ls-command "exa -la --color=always"    # Use exa instead of ls
-set -g @termonaut-show-process-count "5"                 # Show more processes
-set -g @termonaut-show-preview-lines "20"                # More preview lines
-set -g @termonaut-show-ls-lines "25"                     # More directory listing lines
-set -g @termonaut-show-git-status-lines "15"             # More git status lines
-set -g @termonaut-editor "nvim"                          # Use neovim for editing
+set -g @omnimux-ls-command "exa -la --color=always"    # Use exa instead of ls
+set -g @omnimux-show-process-count "5"                 # Show more processes
+set -g @omnimux-show-preview-lines "20"                # More preview lines
+set -g @omnimux-show-ls-lines "25"                     # More directory listing lines
+set -g @omnimux-show-git-status-lines "15"             # More git status lines
+set -g @omnimux-editor "nvim"                          # Use neovim for editing
 ```
 
 ### Minimal Configuration
@@ -320,13 +320,13 @@ For a simple setup with just the essentials:
 ```bash
 # ~/.tmux.conf
 
-# Install termonaut
-set -g @plugin 'VenkatRaman3103/Termonaut_Across_the_Tmux_Verse'
+# Install omnimux
+set -g @plugin 'VenkatRaman3103/Omnimux'
 
 # Basic customization
-set -g @termonaut-key "s"                    # Use 's' instead of 'J'
-set -g @termonaut-preview-enabled "true"     # Enable preview
-set -g @termonaut-display-mode "popup"       # Use popup mode
+set -g @omnimux-key "s"                    # Use 's' instead of 'J'
+set -g @omnimux-preview-enabled "true"     # Enable preview
+set -g @omnimux-display-mode "popup"       # Use popup mode
 ```
 
 ### Color Theme Examples
@@ -334,36 +334,36 @@ set -g @termonaut-display-mode "popup"       # Use popup mode
 #### Dark Theme
 
 ```bash
-set -g @termonaut-active-bg "#2d3748"
-set -g @termonaut-active-fg "#e2e8f0"
-set -g @termonaut-tmuxifier-mark-color "#4299e1"
-set -g @termonaut-zoxide-mark-color "#ed8936"
-set -g @termonaut-find-mark-color "#48bb78"
+set -g @omnimux-active-bg "#2d3748"
+set -g @omnimux-active-fg "#e2e8f0"
+set -g @omnimux-tmuxifier-mark-color "#4299e1"
+set -g @omnimux-zoxide-mark-color "#ed8936"
+set -g @omnimux-find-mark-color "#48bb78"
 ```
 
 #### Light Theme
 
 ```bash
-set -g @termonaut-active-bg "#f7fafc"
-set -g @termonaut-active-fg "#1a202c"
-set -g @termonaut-tmuxifier-mark-color "#3182ce"
-set -g @termonaut-zoxide-mark-color "#d69e2e"
-set -g @termonaut-find-mark-color "#38a169"
+set -g @omnimux-active-bg "#f7fafc"
+set -g @omnimux-active-fg "#1a202c"
+set -g @omnimux-tmuxifier-mark-color "#3182ce"
+set -g @omnimux-zoxide-mark-color "#d69e2e"
+set -g @omnimux-find-mark-color "#38a169"
 ```
 
 #### Cyberpunk Theme
 
 ```bash
-set -g @termonaut-active-bg "#0d1117"
-set -g @termonaut-active-fg "#00ff41"
-set -g @termonaut-tmuxifier-mark-color "#ff0080"
-set -g @termonaut-zoxide-mark-color "#00ffff"
-set -g @termonaut-find-mark-color "#ffff00"
+set -g @omnimux-active-bg "#0d1117"
+set -g @omnimux-active-fg "#00ff41"
+set -g @omnimux-tmuxifier-mark-color "#ff0080"
+set -g @omnimux-zoxide-mark-color "#00ffff"
+set -g @omnimux-find-mark-color "#ffff00"
 ```
 
 ## How It Works 🔍
 
-Termonaut aggregates different sources of sessions and paths:
+Omnimux aggregates different sources of sessions and paths:
 
 1. **Active Tmux Sessions** - Currently running tmux sessions (with active session prioritized)
 2. **Tmuxifier Layouts** - Predefined session templates (filtered to exclude active ones)
@@ -401,7 +401,7 @@ z ~/documents/notes
 
 ```bash
 # Custom key bindings for different workflows
-set -g @termonaut-key "s"                    # Sessions
+set -g @omnimux-key "s"                    # Sessions
 bind-key "p" display-popup -E "cd ~/projects && find . -type d -name .git | head -10 | xargs dirname"
 ```
 
@@ -425,7 +425,7 @@ bind-key "p" display-popup -E "cd ~/projects && find . -type d -name .git | head
 
 **Preview not working**
 
-- Check that preview is enabled: `tmux show-option -g @termonaut-preview-enabled`
+- Check that preview is enabled: `tmux show-option -g @omnimux-preview-enabled`
 - Ensure required commands are available (ls, ps, git)
 
 **Colors not displaying correctly**

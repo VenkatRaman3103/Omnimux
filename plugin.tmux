@@ -8,22 +8,22 @@ default_window_height="100%"
 default_border_fg="#0c0c0c"
 default_border_bg="#0c0c0c"
 
-key_binding=$(tmux show-option -gqv @termonaut-key)
+key_binding=$(tmux show-option -gqv @omnimux-key)
 key_binding=${key_binding:-$default_key_binding}
 
-display_mode=$(tmux show-option -gqv @termonaut-display-mode)
+display_mode=$(tmux show-option -gqv @omnimux-display-mode)
 display_mode=${display_mode:-$default_display_mode}
 
-window_width=$(tmux show-option -gqv @termonaut-window-width)
+window_width=$(tmux show-option -gqv @omnimux-window-width)
 window_width=${window_width:-$default_window_width}
 
-window_height=$(tmux show-option -gqv @termonaut-window-height)
+window_height=$(tmux show-option -gqv @omnimux-window-height)
 window_height=${window_height:-$default_window_height}
 
-border_fg=$(tmux show-option -gqv @termonaut-border-fg)
+border_fg=$(tmux show-option -gqv @omnimux-border-fg)
 border_fg=${border_fg:-$default_border_fg}
 
-border_bg=$(tmux show-option -gqv @termonaut-border-bg)
+border_bg=$(tmux show-option -gqv @omnimux-border-bg)
 border_bg=${border_bg:-$default_border_bg}
 
 case "$display_mode" in
