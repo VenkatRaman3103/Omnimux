@@ -277,40 +277,40 @@ set -g @termonaut-tmux-mark-color "#9f7aea"       # Purple for tmux
 set -g @termonaut-active-session-color "#f56565"  # Red for active session
 
 # === Content Colors ===
-set -g @termonaut-tmux-session-color "#ffffff"     # White tmux sessions
-set -g @termonaut-tmuxifier-session-color "#87ceeb" # Sky blue tmuxifier
-set -g @termonaut-zoxide-path-color "#90ee90"      # Light green zoxide paths
-set -g @termonaut-find-path-color "#dda0dd"        # Plum find paths
+set -g @termonaut-tmux-session-color "#ffffff"       # White tmux sessions
+set -g @termonaut-tmuxifier-session-color "#87ceeb"  # Sky blue tmuxifier
+set -g @termonaut-zoxide-path-color "#90ee90"        # Light green zoxide paths
+set -g @termonaut-find-path-color "#dda0dd"          # Plum find paths
 
 # === FZF Interface ===
-set -g @termonaut-fzf-height "100%"          # Full height
-set -g @termonaut-fzf-border "rounded"       # Rounded borders
-set -g @termonaut-fzf-layout "no-reverse"    # Normal layout
-set -g @termonaut-fzf-window-layout "reverse" # Reverse for windows
-set -g @termonaut-fzf-prompt "🚀 "          # Rocket emoji prompt
-set -g @termonaut-fzf-window-prompt "📋 "    # Clipboard emoji for windows
-set -g @termonaut-fzf-pointer "→"           # Arrow pointer
-set -g @termonaut-fzf-window-pointer "▸"     # Different arrow for windows
+set -g @termonaut-fzf-height "100%"            # Full height
+set -g @termonaut-fzf-border "rounded"         # Rounded borders
+set -g @termonaut-fzf-layout "no-reverse"      # Normal layout
+set -g @termonaut-fzf-window-layout "reverse"  # Reverse for windows
+set -g @termonaut-fzf-prompt "🚀 "             # Rocket emoji prompt
+set -g @termonaut-fzf-window-prompt "📋 "      # Clipboard emoji for windows
+set -g @termonaut-fzf-pointer "→"              # Arrow pointer
+set -g @termonaut-fzf-window-pointer "▸"       # Different arrow for windows
 
 # === Preview Settings ===
-set -g @termonaut-preview-enabled "true"     # Enable preview
-set -g @termonaut-fzf-preview-position "right:60%" # Preview on right
-set -g @termonaut-fzf-preview-window-position "bottom:50%" # Bottom for windows
+set -g @termonaut-preview-enabled "true"                    # Enable preview
+set -g @termonaut-fzf-preview-position "right:60%"          # Preview on right
+set -g @termonaut-fzf-preview-window-position "bottom:50%"  # Bottom for windows
 
 # === Path & Search ===
-set -g @termonaut-max-zoxide-paths "25"      # More zoxide paths
-set -g @termonaut-max-find-paths "20"        # More find results
-set -g @termonaut-find-base-dir "$HOME/projects" # Search in projects
-set -g @termonaut-find-max-depth "4"         # Deeper search
-set -g @termonaut-find-min-depth "2"         # Skip immediate subdirs
+set -g @termonaut-max-zoxide-paths "25"            # More zoxide paths
+set -g @termonaut-max-find-paths "20"              # More find results
+set -g @termonaut-find-base-dir "$HOME/projects"   # Search in projects
+set -g @termonaut-find-max-depth "4"               # Deeper search
+set -g @termonaut-find-min-depth "2"               # Skip immediate subdirs
 
 # === Display Settings ===
-set -g @termonaut-ls-command "exa -la --color=always" # Use exa instead of ls
-set -g @termonaut-show-process-count "5"      # Show more processes
-set -g @termonaut-show-preview-lines "20"     # More preview lines
-set -g @termonaut-show-ls-lines "25"          # More directory listing lines
-set -g @termonaut-show-git-status-lines "15"  # More git status lines
-set -g @termonaut-editor "nvim"               # Use neovim for editing
+set -g @termonaut-ls-command "exa -la --color=always"    # Use exa instead of ls
+set -g @termonaut-show-process-count "5"                 # Show more processes
+set -g @termonaut-show-preview-lines "20"                # More preview lines
+set -g @termonaut-show-ls-lines "25"                     # More directory listing lines
+set -g @termonaut-show-git-status-lines "15"             # More git status lines
+set -g @termonaut-editor "nvim"                          # Use neovim for editing
 ```
 
 ### Minimal Configuration
