@@ -176,6 +176,67 @@ switch_window() {
     tmux select-window -t "$session:$window_index"
 }
 
+rename_window() {
+    local session=$1
+    local window=$2
+
+    local window_index=$(echo "$window" | cut -d':' -f1)
+    local current_name=$(echo "$window" | sed 's/^[0-9]*: //' | sed 's/ (active)//')
+
+    local new_name=$(echo "$current_name" | fzf --print-query --query="$current_name" --prompt="Rename window to: " --header="Press Enter to confirm" --reverse)
+
+    if [ -n "$new_name" ] && [ "$new_name" != "$current_name" ]; then
+        if tmux rename-window -t "$session:$window_index" "$new_name" 2>/dev/null; then
+            tmux display-message "Renamed window: $current_name → $new_name"
+        else
+            tmux display-message "Failed to rename window: $current_name"
+        fi
+    fi
+}
+
+delete_window() {
+    local session=$1
+    local window=$2
+
+    local window_index=$(echo "$window" | cut -d':' -f1)
+    local window_name=$(echo "$window" | sed 's/^[0-9]*: //' | sed 's/ (active)//')
+    
+    local window_count=$(tmux list-windows -t "$session" 2>/dev/null | wc -l)
+    if [ "$window_count" -eq 1 ]; then
+        echo "Cannot delete the only window in session. This would terminate the session." | fzf --header="Error" --reverse
+        return 1
+    fi
+
+    local current_window=$(tmux display-message -p '#I')
+    if [ "$window_index" = "$current_window" ]; then
+        local confirmation=$(echo -e "y\nn" | fzf --header="Delete current window '$window_name'? This will switch to another window. Select 'y' to confirm" --reverse)
+    else
+        local confirmation=$(echo -e "y\nn" | fzf --header="Delete window '$window_name'? Select 'y' to confirm" --reverse)
+    fi
+
+    if [ "$confirmation" = "y" ]; then
+        if tmux kill-window -t "$session:$window_index" 2>/dev/null; then
+            tmux display-message "Deleted window: $window_name"
+        else
+            tmux display-message "Failed to delete window: $window_name"
+        fi
+    fi
+}
+
+create_window() {
+    local session=$1
+    
+    local window_name=$(echo "" | fzf --print-query --prompt="New window name (optional): " --header="Press Enter to create window" --reverse)
+    
+    if [ -n "$window_name" ]; then
+        tmux new-window -t "$session" -n "$window_name"
+    else
+        tmux new-window -t "$session"
+    fi
+    
+    tmux display-message "Created new window"
+}
+
 load_tmuxifier_session() {
     local session=$1
     local tmuxifier_dir=$(find_tmuxifier)
@@ -384,7 +445,6 @@ if echo "\$session_line" | grep -q "(active)"; then
 elif echo "\$session_line" | grep -q "(tmuxifier)"; then
     echo -e "\033[1;36mTmuxifier Session:\033[0m \033[1;33m\$session_name\033[0m\n"
 
-    # Find tmuxifier directory
     tmuxifier_dir=""
     for path in "\$HOME/.tmuxifier" "\$HOME/.local/share/tmuxifier" "/usr/local/share/tmuxifier"; do
         if [ -d "\$path" ]; then
@@ -448,7 +508,8 @@ show_windows() {
         return 1
     fi
 
-    local fzf_cmd="fzf --header=\"[Enter:Select ?:Help] Windows for $session\" --prompt=\"$FZF_WINDOW_PROMPT\" --pointer=\"$FZF_WINDOW_POINTER\" --ansi --expect=? --\"$FZF_WINDOW_LAYOUT\" --height=\"$FZF_HEIGHT\" --border=\"$FZF_BORDER\""
+    local header_text="Enter:Select / ctrl-r:Rename / ctrl-d:Delete / ctrl-n:New Window / ?:Help"
+    local fzf_cmd="fzf --header=\"$header_text\" --prompt=\"$FZF_WINDOW_PROMPT\" --pointer=\"$FZF_WINDOW_POINTER\" --ansi --expect=ctrl-r,ctrl-d,ctrl-n,? --\"$FZF_WINDOW_LAYOUT\" --height=\"$FZF_HEIGHT\" --border=\"$FZF_BORDER\""
 
     if [ "$PREVIEW_ENABLED" = "true" ]; then
         local window_preview_script=$(mktemp -t "tmux_window_preview_XXXXXX.sh")
@@ -501,6 +562,18 @@ WINDOW_PREVIEW_EOF
     local window=$(echo "$selection" | sed 's/ (active)//')
 
     case "$key" in
+        "ctrl-r")
+            rename_window "$session" "$window"
+            show_windows "$session" 
+        ;;
+        "ctrl-d")
+            delete_window "$session" "$window"
+            show_windows "$session"
+        ;;
+        "ctrl-n")
+            create_window "$session"
+            show_windows "$session"
+        ;;
         "?")
             show_window_help "$session"
         ;;
@@ -531,6 +604,9 @@ show_window_help() {
 
     cat << EOF | fzf --reverse --header "Window Shortcuts" --prompt "Press Escape to return" --border="$FZF_BORDER" --height="$FZF_HEIGHT"
 Enter       Switch to selected window
+ctrl-r      Rename selected window
+ctrl-d      Delete selected window
+ctrl-n      Create new window
 Escape      Return to sessions
 EOF
     show_windows "$session"
