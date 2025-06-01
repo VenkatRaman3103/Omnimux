@@ -19,8 +19,10 @@ ACTIVE_COLOR=""
 
 FZF_HEIGHT=$(get_tmux_option "@termonaut-fzf-height" "100%")
 FZF_BORDER=$(get_tmux_option "@termonaut-fzf-border" "none")
+FZF_LAYOUT=$(get_tmux_option "@termonaut-fzf-layout" "no-reverse")
+FZF_WINDOW_LAYOUT=$(get_tmux_option "@termonaut-fzf-window-layout" "reverse")
 FZF_PREVIEW_POSITION=$(get_tmux_option "@termonaut-fzf-preview-position" "bottom:60%")
-FZF_PREVIEW_WINDOW_POSITION=$(get_tmux_option "@termonaut-fzf-preview-window-position" "right:75%:wrap")
+FZF_PREVIEW_WINDOW_POSITION=$(get_tmux_option "@termonaut-fzf-preview-window-position" "right:75%")
 
 MAX_ZOXIDE_PATHS=$(get_tmux_option "@termonaut-max-zoxide-paths" "20")
 MAX_FIND_PATHS=$(get_tmux_option "@termonaut-max-find-paths" "15")
@@ -431,7 +433,7 @@ show_windows() {
         --prompt="> " \
         --ansi \
         --expect=? \
-        --reverse \
+        --"$FZF_WINDOW_LAYOUT" \
         --height="$FZF_HEIGHT" \
         --border="$FZF_BORDER" \
         --preview="
@@ -546,7 +548,7 @@ main() {
         --prompt="> " \
         --ansi \
         --expect=ctrl-r,ctrl-e,ctrl-t,ctrl-d,ctrl-w,ctrl-f,? \
-        --reverse \
+        --"$FZF_LAYOUT" \
         --height="$FZF_HEIGHT" \
         --border="$FZF_BORDER" \
         --preview="$preview_script {}" \
