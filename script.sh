@@ -28,6 +28,8 @@ FZF_WINDOW_PROMPT=$(get_tmux_option "@termonaut-fzf-window-prompt" "> ")
 FZF_POINTER=$(get_tmux_option "@termonaut-fzf-pointer" "▶")
 FZF_WINDOW_POINTER=$(get_tmux_option "@termonaut-fzf-window-pointer" "▶")
 
+LS_COMMAND=$(get_tmux_option "@termonaut-ls-command" "ls -la")
+
 MAX_ZOXIDE_PATHS=$(get_tmux_option "@termonaut-max-zoxide-paths" "20")
 MAX_FIND_PATHS=$(get_tmux_option "@termonaut-max-find-paths" "15")
 FIND_BASE_DIR=$(get_tmux_option "@termonaut-find-base-dir" "$HOME")
@@ -404,7 +406,7 @@ elif echo "\$session_line" | grep -q "(zoxide)" || echo "\$session_line" | grep 
 
     if [ -d "\$path" ]; then
         echo -e "\033[1;36mDirectory contents:\033[0m"
-        ls -la "\$path" 2>/dev/null | head -$SHOW_LS_LINES
+        $LS_COMMAND "\$path" 2>/dev/null | head -$SHOW_LS_LINES
         
         echo -e "\n\033[1;36mGit status (if applicable):\033[0m"
         if [ -d "\$path/.git" ]; then
