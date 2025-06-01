@@ -23,6 +23,10 @@ FZF_LAYOUT=$(get_tmux_option "@termonaut-fzf-layout" "no-reverse")
 FZF_WINDOW_LAYOUT=$(get_tmux_option "@termonaut-fzf-window-layout" "reverse")
 FZF_PREVIEW_POSITION=$(get_tmux_option "@termonaut-fzf-preview-position" "bottom:60%")
 FZF_PREVIEW_WINDOW_POSITION=$(get_tmux_option "@termonaut-fzf-preview-window-position" "right:75%")
+FZF_PROMPT=$(get_tmux_option "@termonaut-fzf-prompt" "> ")
+FZF_WINDOW_PROMPT=$(get_tmux_option "@termonaut-fzf-window-prompt" "> ")
+FZF_POINTER=$(get_tmux_option "@termonaut-fzf-pointer" "▶")
+FZF_WINDOW_POINTER=$(get_tmux_option "@termonaut-fzf-window-pointer" "▶")
 
 MAX_ZOXIDE_PATHS=$(get_tmux_option "@termonaut-max-zoxide-paths" "20")
 MAX_FIND_PATHS=$(get_tmux_option "@termonaut-max-find-paths" "15")
@@ -341,7 +345,7 @@ if echo "\$session_line" | grep -q "(active)"; then
     fi
 
     if [ -n "\$active_window" ]; then
-        echo -e "\n\033[1;36mPreview of active window \$active_window:\033[0m"
+        # echo -e "\n\033[1;36mPreview of active window \$active_window:\033[0m"
         active_pane=\$(tmux list-panes -t "\$session_name:\$active_window" -F "#{pane_active} #{pane_id}" 2>/dev/null | grep "^1" | awk '{print \$2}')
         if [ -z "\$active_pane" ]; then
             active_pane=\$(tmux list-panes -t "\$session_name:\$active_window" -F "#{pane_id}" 2>/dev/null | head -1)
@@ -430,7 +434,8 @@ show_windows() {
 
     local result=$(echo "$windows" | fzf \
         --header="[Enter:Select ?:Help] Windows for $session" \
-        --prompt="> " \
+        --prompt="$FZF_WINDOW_PROMPT" \
+        --pointer="$FZF_WINDOW_POINTER" \
         --ansi \
         --expect=? \
         --"$FZF_WINDOW_LAYOUT" \
@@ -443,9 +448,9 @@ show_windows() {
 
             echo -e \"\033[1;36mWindow Preview:\033[0m \033[1;33m\$window\033[0m\n\";
 
-            echo -e \"\033[1;36mPanes:\033[0m\";
-            tmux list-panes -t \"\$session:\$window_index\" -F \"\033[1;32m#P:\033[0m \033[1;37m#{pane_current_command}\033[0m [\033[1;34m#{pane_active?active:}\033[0m]\" 2>/dev/null | sed 's/\[\]//g';
-            echo \"\";
+            # echo -e \"\033[1;36mPanes:\033[0m\";
+            # tmux list-panes -t \"\$session:\$window_index\" -F \"\033[1;32m#P:\033[0m \033[1;37m#{pane_current_command}\033[0m [\033[1;34m#{pane_active?active:}\033[0m]\" 2>/dev/null | sed 's/\[\]//g';
+            # echo \"\";
 
             active_pane=\$(tmux list-panes -t \"\$session:\$window_index\" -F \"#{pane_active} #{pane_id}\" 2>/dev/null | grep \"^1\" | awk '{print \$2}');
             if [ -z \"\$active_pane\" ]; then
@@ -453,7 +458,7 @@ show_windows() {
             fi;
 
             if [ -n \"\$active_pane\" ]; then
-                echo -e \"\033[1;36mPane content preview:\033[0m\";
+                # echo -e \"\033[1;36mPane content preview:\033[0m\";
                 tmux capture-pane -e -t \"\$active_pane\" -p 2>/dev/null | head -$SHOW_PREVIEW_LINES;
 
                 echo -e \"\n\033[1;36mRunning processes:\033[0m\";
@@ -545,7 +550,8 @@ main() {
 
     local result=$(echo "$all_sessions" | fzf \
         --header="Enter:Select / ctrl-r:Rename / ctrl-e:Edit / ctrl-t:Terminate / ctrl-d:Delete / ctrl-w:Windows / ctrl-f:Filter / ?:Help" \
-        --prompt="> " \
+        --prompt="$FZF_PROMPT" \
+        --pointer="$FZF_POINTER" \
         --ansi \
         --expect=ctrl-r,ctrl-e,ctrl-t,ctrl-d,ctrl-w,ctrl-f,? \
         --"$FZF_LAYOUT" \
