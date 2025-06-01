@@ -15,7 +15,7 @@ hex_to_ansi() {
     local g=$((16#${hex:2:2}))
     local b=$((16#${hex:4:2}))
     
-    echo "\033[38;2;${r};${g};${b}m"
+    printf "\033[38;2;%d;%d;%dm" "$r" "$g" "$b"
 }
 
 ACTIVE_BG=$(get_tmux_option "@termonaut-active-bg" "#444444")
@@ -39,6 +39,18 @@ TMUX_MARK_COLOR=$(hex_to_ansi "$TMUX_MARK_HEX")
 
 ACTIVE_SESSION_HEX=$(get_tmux_option "@termonaut-active-session-color" "#333333")
 ACTIVE_SESSION_COLOR=$(hex_to_ansi "$ACTIVE_SESSION_HEX")
+
+TMUX_SESSION_HEX=$(get_tmux_option "@termonaut-tmux-session-color" "#ffffff")
+TMUX_SESSION_COLOR=$(hex_to_ansi "$TMUX_SESSION_HEX")
+
+TMUXIFIER_SESSION_HEX=$(get_tmux_option "@termonaut-tmuxifier-session-color" "#87ceeb")
+TMUXIFIER_SESSION_COLOR=$(hex_to_ansi "$TMUXIFIER_SESSION_HEX")
+
+ZOXIDE_PATH_HEX=$(get_tmux_option "@termonaut-zoxide-path-color" "#90ee90")
+ZOXIDE_PATH_COLOR=$(hex_to_ansi "$ZOXIDE_PATH_HEX")
+
+FIND_PATH_HEX=$(get_tmux_option "@termonaut-find-path-color" "#dda0dd")
+FIND_PATH_COLOR=$(hex_to_ansi "$FIND_PATH_HEX")
 
 NORMAL="\033[0m"
 
@@ -95,9 +107,9 @@ get_tmux_sessions() {
     while IFS= read -r session; do
         if [ -n "$session" ]; then 
             if [ "$session" = "$current_session" ]; then
-                current_session_line=$(echo "$session" | awk '{print "'${TMUX_COLOR}'" $0 "\033[0m " "'${TMUX_MARK_COLOR}'(tmux)\033[0m " "'${ACTIVE_SESSION_COLOR}'(active)\033[0m"}')
+                current_session_line=$(printf "%b%s%b %b(tmux)%b %b(active)%b" "${TMUX_SESSION_COLOR}" "$session" "${NORMAL}" "${TMUX_MARK_COLOR}" "${NORMAL}" "${ACTIVE_SESSION_COLOR}" "${NORMAL}")
             else
-                other_sessions="${other_sessions}$(echo "$session" | awk '{print "'${TMUX_COLOR}'" $0 "\033[0m " "'${TMUX_MARK_COLOR}'(tmux)\033[0m"}')
+                other_sessions="${other_sessions}$(printf "%b%s%b %b(tmux)%b" "${TMUX_SESSION_COLOR}" "$session" "${NORMAL}" "${TMUX_MARK_COLOR}" "${NORMAL}")
 "
             fi
         fi
@@ -116,8 +128,6 @@ ${other_sessions}"
     echo "$sessions" | sed '/^$/d'
 }
 
-#  '{print "'${TMUX_COLOR}'" $0 "\033[0m " "'${TMUX_MARK_COLOR}'(tmux)\033[0m"}')
-
 get_tmuxifier_sessions() {
     local tmuxifier_dir=$(find_tmuxifier)
 
@@ -127,7 +137,9 @@ get_tmuxifier_sessions() {
         if [ -d "$layouts_dir" ]; then
             find "$layouts_dir" -name "*.session.sh" -exec basename {} \; 2>/dev/null |
                 sed 's/\.session\.sh$//' |
-                awk '{print $0 " '${TMUXIFIER_COLOR}'(tmuxifier)'"\033[0m"'"}' |
+                while read -r session; do
+                    printf "%b%s%b %b(tmuxifier)%b\n" "${TMUXIFIER_SESSION_COLOR}" "$session" "${NORMAL}" "${TMUXIFIER_COLOR}" "${NORMAL}"
+                done |
                 sort
         fi
     fi
@@ -136,7 +148,9 @@ get_tmuxifier_sessions() {
 get_zoxide_paths() {
     if command -v zoxide &> /dev/null; then
         zoxide query -l 2>/dev/null | head -"$MAX_ZOXIDE_PATHS" |
-            awk '{print $0 " '${ZOXIDE_COLOR}'(zoxide)'"\033[0m"'"}' |
+            while read -r path; do
+                printf "%b%s%b %b(zoxide)%b\n" "${ZOXIDE_PATH_COLOR}" "$path" "${NORMAL}" "${ZOXIDE_COLOR}" "${NORMAL}"
+            done |
             sort
     fi
 }
@@ -147,7 +161,9 @@ get_find_paths() {
             \( -name ".git" -o -name ".svn" -o -name ".hg" -o -name "node_modules" -o -name "__pycache__" \) -prune -o \
             -type d -readable -print 2>/dev/null |
             head -"$MAX_FIND_PATHS" |
-            awk '{print $0 " '${FIND_COLOR}'(find)'"\033[0m"'"}' |
+            while read -r path; do
+                printf "%b%s%b %b(find)%b\n" "${FIND_PATH_COLOR}" "$path" "${NORMAL}" "${FIND_COLOR}" "${NORMAL}"
+            done |
             sort
     fi
 }
@@ -160,7 +176,8 @@ filter_tmuxifier_sessions() {
     while IFS= read -r session_line; do
         if [ -n "$session_line" ]; then
             local session_name=$(echo "$session_line" | awk '{print $1}')
-            if ! echo "$active_sessions" | grep -q "^${session_name}$"; then
+            # Fixed: Use grep -F to treat session_name as literal string
+            if ! echo "$active_sessions" | grep -qF "$session_name"; then
                 filtered_sessions="${filtered_sessions}${session_line}
 "
             fi
@@ -507,7 +524,7 @@ session_line="\$1"
 session_name=\$(echo "\$session_line" | awk '{print \$1}')
 
 if echo "\$session_line" | grep -q "(tmux)"; then
-    echo -e "\033[1;36mSession:\033[0m \033[1;33m\$session_name\033[0m"
+    printf "\033[1;36mSession:\033[0m \033[1;33m%s\033[0m\n" "\$session_name"
 
     active_window=\$(tmux list-windows -t "\$session_name" -F "#{window_active} #I" 2>/dev/null | grep "^1" | awk '{print \$2}')
     if [ -z "\$active_window" ]; then
@@ -515,7 +532,6 @@ if echo "\$session_line" | grep -q "(tmux)"; then
     fi
 
     if [ -n "\$active_window" ]; then
-        # echo -e "\n\033[1;36mPreview of active window \$active_window:\033[0m"
         active_pane=\$(tmux list-panes -t "\$session_name:\$active_window" -F "#{pane_active} #{pane_id}" 2>/dev/null | grep "^1" | awk '{print \$2}')
         if [ -z "\$active_pane" ]; then
             active_pane=\$(tmux list-panes -t "\$session_name:\$active_window" -F "#{pane_id}" 2>/dev/null | head -1)
@@ -524,19 +540,19 @@ if echo "\$session_line" | grep -q "(tmux)"; then
         if [ -n "\$active_pane" ]; then
             tmux capture-pane -e -t "\$active_pane" -p 2>/dev/null | head -$SHOW_PREVIEW_LINES
 
-            echo -e "\n\033[1;36mRunning processes:\033[0m"
+            printf "\n\033[1;36mRunning processes:\033[0m\n"
             pane_pid=\$(tmux list-panes -t "\$active_pane" -F "#{pane_pid}" 2>/dev/null | head -1)
             if [ -n "\$pane_pid" ]; then
                 ps --ppid \$pane_pid -o pid=,cmd= 2>/dev/null | head -$SHOW_PROCESS_COUNT | while read line; do
                     if [ -n "\$line" ]; then
-                        echo -e "\033[1;35m\$(echo \$line | awk '{print \$1}')\033[0m \033[1;37m\$(echo \$line | cut -d' ' -f2-)\033[0m"
+                        printf "\033[1;35m%s\033[0m \033[1;37m%s\033[0m\n" "\$(echo \$line | awk '{print \$1}')" "\$(echo \$line | cut -d' ' -f2-)"
                     fi
                 done
             fi
         fi
     fi
 elif echo "\$session_line" | grep -q "(tmuxifier)"; then
-    echo -e "\033[1;36mTmuxifier Session:\033[0m \033[1;33m\$session_name\033[0m\n"
+    printf "\033[1;36mTmuxifier Session:\033[0m \033[1;33m%s\033[0m\n\n" "\$session_name"
 
     tmuxifier_dir=""
     for path in "\$HOME/.tmuxifier" "\$HOME/.local/share/tmuxifier" "/usr/local/share/tmuxifier"; do
@@ -566,16 +582,16 @@ elif echo "\$session_line" | grep -q "(tmuxifier)"; then
 elif echo "\$session_line" | grep -q "(zoxide)" || echo "\$session_line" | grep -q "(find)"; then
     path=\$(echo "\$session_line" | awk '{print \$1}')
     if echo "\$session_line" | grep -q "(zoxide)"; then
-        echo -e "\033[1;36mZoxide Path:\033[0m \033[1;33m\$path\033[0m\n"
+        printf "\033[1;36mZoxide Path:\033[0m \033[1;33m%s\033[0m\n\n" "\$path"
     else
-        echo -e "\033[1;36mFind Path:\033[0m \033[1;33m\$path\033[0m\n"
+        printf "\033[1;36mFind Path:\033[0m \033[1;33m%s\033[0m\n\n" "\$path"
     fi
 
     if [ -d "\$path" ]; then
-        echo -e "\033[1;36mDirectory contents:\033[0m"
+        printf "\033[1;36mDirectory contents:\033[0m\n"
         $LS_COMMAND "\$path" 2>/dev/null | head -$SHOW_LS_LINES
         
-        echo -e "\n\033[1;36mGit status (if applicable):\033[0m"
+        printf "\n\033[1;36mGit status (if applicable):\033[0m\n"
         if [ -d "\$path/.git" ]; then
             cd "\$path" && git status --porcelain 2>/dev/null | head -$SHOW_GIT_STATUS_LINES
         else
