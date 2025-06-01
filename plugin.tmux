@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-default_key_binding="v"
+default_key_binding="J"
 default_display_mode="popup"
 default_window_width="100%"
 default_window_height="100%"

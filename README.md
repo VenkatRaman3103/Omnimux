@@ -48,7 +48,7 @@ If you're using [TPM (Tmux Plugin Manager)](https://github.com/tmux-plugins/tpm)
    tmux source-file ~/.tmux.conf
    ```
 
-The default key binding `<prefix>v` will be automatically configured.
+The default key binding `J` will be automatically configured.
 
 ### Option 2: Manual Installation
 
@@ -95,14 +95,14 @@ The default key binding `<prefix>v` will be automatically configured.
 4. **Set up tmux key binding manually:**
    ```bash
    # Add to your ~/.tmux.conf
-   bind-key v run-shell 'path/to/script.sh'
+   bind-key J run-shell 'path/to/script.sh'
    ```
 
 ## Usage 🎯
 
 ### Basic Usage
 
-**Default Key Binding**: Press `<prefix>v` from within any tmux session to launch Termonaut.
+**Default Key Binding**: Press `J` from within any tmux session to launch Termonaut.
 
 You can also run the script directly:
 
@@ -167,7 +167,7 @@ set -g @termonaut-display-mode "window"
 
 | Option                     | Default     | Description                       |
 | -------------------------- | ----------- | --------------------------------- |
-| `@termonaut-key`           | `"v"`       | Key binding to launch Termonaut   |
+| `@termonaut-key`           | `"J"`       | Key binding to launch Termonaut   |
 | `@termonaut-display-mode`  | `"popup"`   | Display mode: `popup` or `window` |
 | `@termonaut-window-width`  | `"100%"`    | Popup window width                |
 | `@termonaut-window-height` | `"100%"`    | Popup window height               |
@@ -256,7 +256,7 @@ Here's a complete example configuration showing all available options:
 set -g @plugin 'VenkatRaman3103/Termonaut_Across_the_Tmux_Verse'
 
 # === Basic Setup ===
-set -g @termonaut-key "s"                    # Change key binding from v to s
+set -g @termonaut-key "s"                    # Change key binding from J to s
 set -g @termonaut-display-mode "popup"       # Use popup mode (default)
 set -g @termonaut-window-width "90%"         # Popup width
 set -g @termonaut-window-height "85%"        # Popup height
@@ -324,7 +324,7 @@ For a simple setup with just the essentials:
 set -g @plugin 'VenkatRaman3103/Termonaut_Across_the_Tmux_Verse'
 
 # Basic customization
-set -g @termonaut-key "s"                    # Use 's' instead of 'v'
+set -g @termonaut-key "s"                    # Use 's' instead of 'J'
 set -g @termonaut-preview-enabled "true"     # Enable preview
 set -g @termonaut-display-mode "popup"       # Use popup mode
 ```
