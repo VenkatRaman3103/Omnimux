@@ -11,11 +11,13 @@ ACTIVE_BG=$(get_tmux_option "@termonaut-active-bg" "#444444")
 ACTIVE_FG=$(get_tmux_option "@termonaut-active-fg" "#ffffff")
 INACTIVE_BG=$(get_tmux_option "@termonaut-inactive-bg" "#222222")
 INACTIVE_FG=$(get_tmux_option "@termonaut-inactive-fg" "#777777")
-TMUXIFIER_COLOR=$(get_tmux_option "@termonaut-tmuxifier-color" "\033[38;5;39m")
-ZOXIDE_COLOR=$(get_tmux_option "@termonaut-zoxide-color" "\033[38;5;208m")
-FIND_COLOR=$(get_tmux_option "@termonaut-find-color" "\033[38;5;118m")
-NORMAL=""
-ACTIVE_COLOR=""
+TMUXIFIER_COLOR=$(get_tmux_option "@termonaut-tmuxifier-color" "\033[38;5;240m")
+ZOXIDE_COLOR=$(get_tmux_option "@termonaut-zoxide-color" "\033[38;5;240m")
+FIND_COLOR=$(get_tmux_option "@termonaut-find-color" "\033[38;5;240m")
+TMUX_COLOR=$(get_tmux_option "@termonaut-tmux-color" "\033[38;5;240m")
+NORMAL="\033[0m"
+ACTIVE_COLOR="\033[38;5;240m"
+
 
 FZF_HEIGHT=$(get_tmux_option "@termonaut-fzf-height" "100%")
 FZF_BORDER=$(get_tmux_option "@termonaut-fzf-border" "none")
@@ -62,7 +64,33 @@ find_tmuxifier() {
 }
 
 get_tmux_sessions() {
-    tmux list-sessions -F "#S ${ACTIVE_COLOR}(active)${NORMAL}" 2>/dev/null | sort
+    local current_session=$(tmux display-message -p '#S' 2>/dev/null)
+    local sessions=""
+    local current_session_line=""
+    local other_sessions=""
+    
+    while IFS= read -r session; do
+        if [ -n "$session" ]; then 
+            if [ "$session" = "$current_session" ]; then
+                current_session_line=$(echo "$session" | awk '{print $0 " '${TMUX_COLOR}'(tmux)'"\033[0m"''${ACTIVE_COLOR}'(active)'"\033[0m"'"}')
+            else
+                other_sessions="${other_sessions}$(echo "$session" | awk '{print $0 " '${TMUX_COLOR}'(tmux)'"\033[0m"'"}')
+"
+            fi
+        fi
+    done < <(tmux list-sessions -F "#S" 2>/dev/null | sort)
+    
+    if [ -n "$current_session_line" ]; then
+        sessions="$current_session_line"
+        if [ -n "$other_sessions" ]; then
+            sessions="${sessions}
+${other_sessions}"
+        fi
+    else
+        sessions="$other_sessions"
+    fi
+    
+    echo "$sessions" | sed '/^$/d'
 }
 
 get_tmuxifier_sessions() {
@@ -164,7 +192,21 @@ handle_zoxide_path() {
 
 switch_session() {
     local session_name=$1
-    tmux switch-client -t "$session_name"
+    
+    if ! tmux has-session -t "$session_name" 2>/dev/null; then
+        tmux display-message "Session '$session_name' does not exist"
+        return 1
+    fi
+    
+    if tmux switch-client -t "$session_name" 2>/dev/null; then
+        tmux display-message "Switched to session: $session_name"
+    else
+        if tmux attach-session -t "$session_name" 2>/dev/null; then
+            tmux display-message "Attached to session: $session_name"
+        else
+            tmux display-message "Failed to switch to session: $session_name"
+        fi
+    fi
 }
 
 switch_window() {
@@ -238,14 +280,12 @@ create_window() {
 }
 
 create_new_session() {
-    # Prompt for session name
     local session_name=$(echo "" | fzf --print-query --prompt="New session name: " --header="Press Enter to create session" --reverse)
     
     if [ -z "$session_name" ]; then
-        return 0  # User cancelled
+        return 0
     fi
     
-    # Check if session already exists
     if tmux has-session -t "$session_name" 2>/dev/null; then
         tmux display-message "Session '$session_name' already exists"
         sleep 1
@@ -253,17 +293,14 @@ create_new_session() {
         return 1
     fi
     
-    # Prompt for starting directory (optional)
     local start_dir=$(echo "$HOME" | fzf --print-query --query="$HOME" --prompt="Starting directory (optional): " --header="Press Enter to use this directory or leave empty for current" --reverse)
     
-    # Create the session
     if [ -n "$start_dir" ] && [ -d "$start_dir" ]; then
         tmux new-session -d -s "$session_name" -c "$start_dir"
     else
         tmux new-session -d -s "$session_name"
     fi
     
-    # Switch to the new session
     tmux switch-client -t "$session_name"
     tmux display-message "Created and switched to session: $session_name"
 }
@@ -444,7 +481,7 @@ create_preview_script() {
 session_line="\$1"
 session_name=\$(echo "\$session_line" | awk '{print \$1}')
 
-if echo "\$session_line" | grep -q "(active)"; then
+if echo "\$session_line" | grep -q "(tmux)"; then
     echo -e "\033[1;36mSession:\033[0m \033[1;33m\$session_name\033[0m"
 
     active_window=\$(tmux list-windows -t "\$session_name" -F "#{window_active} #I" 2>/dev/null | grep "^1" | awk '{print \$2}')
@@ -648,7 +685,7 @@ handle_session() {
     local selection="$1"
     local session_name=$(echo "$selection" | awk '{print $1}')
 
-    if echo "$selection" | grep -q "(active)"; then
+    if echo "$selection" | grep -q "(tmux)"; then
         switch_session "$session_name"
     elif echo "$selection" | grep -q "(tmuxifier)"; then
         load_tmuxifier_session "$session_name"
@@ -656,6 +693,8 @@ handle_session() {
         handle_zoxide_path "$session_name"
     elif echo "$selection" | grep -q "(find)"; then
         handle_find_path "$session_name"
+    else
+        switch_session "$session_name"
     fi
 }
 
