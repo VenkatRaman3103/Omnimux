@@ -13,6 +13,7 @@ INACTIVE_BG=$(get_tmux_option "@termonaut-inactive-bg" "#222222")
 INACTIVE_FG=$(get_tmux_option "@termonaut-inactive-fg" "#777777")
 TMUXIFIER_COLOR=$(get_tmux_option "@termonaut-tmuxifier-color" "\033[38;5;39m")
 ZOXIDE_COLOR=$(get_tmux_option "@termonaut-zoxide-color" "\033[38;5;208m")
+FIND_COLOR=$(get_tmux_option "@termonaut-find-color" "\033[38;5;118m")
 NORMAL=""
 ACTIVE_COLOR=""
 
@@ -22,6 +23,10 @@ FZF_PREVIEW_POSITION=$(get_tmux_option "@termonaut-fzf-preview-position" "bottom
 FZF_PREVIEW_WINDOW_POSITION=$(get_tmux_option "@termonaut-fzf-preview-window-position" "right:75%:wrap")
 
 MAX_ZOXIDE_PATHS=$(get_tmux_option "@termonaut-max-zoxide-paths" "20")
+MAX_FIND_PATHS=$(get_tmux_option "@termonaut-max-find-paths" "15")
+FIND_BASE_DIR=$(get_tmux_option "@termonaut-find-base-dir" "$HOME")
+FIND_MAX_DEPTH=$(get_tmux_option "@termonaut-find-max-depth" "3")
+FIND_MIN_DEPTH=$(get_tmux_option "@termonaut-find-min-depth" "1")
 SHOW_PROCESS_COUNT=$(get_tmux_option "@termonaut-show-process-count" "3")
 SHOW_PREVIEW_LINES=$(get_tmux_option "@termonaut-show-preview-lines" "15")
 SHOW_LS_LINES=$(get_tmux_option "@termonaut-show-ls-lines" "20")
@@ -68,7 +73,18 @@ get_tmuxifier_sessions() {
 get_zoxide_paths() {
     if command -v zoxide &> /dev/null; then
         zoxide query -l 2>/dev/null | head -"$MAX_ZOXIDE_PATHS" |
-            awk '{print $0 "'${TMUXIFIER_COLOR}' '${ZOXIDE_COLOR}'(zoxide)'"\033[0m"'"}' |
+            awk '{print $0 " '${ZOXIDE_COLOR}'(zoxide)'"\033[0m"'"}' |
+            sort
+    fi
+}
+
+get_find_paths() {
+    if [ -d "$FIND_BASE_DIR" ]; then
+        find "$FIND_BASE_DIR" -mindepth "$FIND_MIN_DEPTH" -maxdepth "$FIND_MAX_DEPTH" -type d \
+            \( -name ".git" -o -name ".svn" -o -name ".hg" -o -name "node_modules" -o -name "__pycache__" \) -prune -o \
+            -type d -readable -print 2>/dev/null |
+            head -"$MAX_FIND_PATHS" |
+            awk '{print $0 " '${FIND_COLOR}'(find)'"\033[0m"'"}' |
             sort
     fi
 }
@@ -95,17 +111,32 @@ get_all_sessions() {
     local active_sessions=$(get_tmux_sessions)
     local tmuxifier_sessions=$(filter_tmuxifier_sessions)
     local zoxide_paths=$(get_zoxide_paths)
+    local find_paths=$(get_find_paths)
 
     {
         echo "$active_sessions"
         echo "$tmuxifier_sessions"
         echo "$zoxide_paths"
+        echo "$find_paths"
     } | sed '/^$/d'
 }
 
 get_session_windows() {
     local session=$1
     tmux list-windows -t "$session" -F "#I: #W #{window_active?*active*:}" 2>/dev/null | sed 's/*active*/(active)/'
+}
+
+handle_find_path() {
+    local path=$1
+
+    local session_name=$(basename "$path" | tr '.' '_' | tr ' ' '_' | tr '-' '_')
+
+    if tmux has-session -t "$session_name" 2>/dev/null; then
+        tmux switch-client -t "$session_name"
+    else
+        tmux new-session -d -s "$session_name" -c "$path"
+        tmux switch-client -t "$session_name"
+    fi
 }
 
 handle_zoxide_path() {
@@ -357,9 +388,13 @@ elif echo "\$session_line" | grep -q "(tmuxifier)"; then
     else
         echo "Tmuxifier installation not found"
     fi
-elif echo "\$session_line" | grep -q "(zoxide)"; then
+elif echo "\$session_line" | grep -q "(zoxide)" || echo "\$session_line" | grep -q "(find)"; then
     path=\$(echo "\$session_line" | awk '{print \$1}')
-    echo -e "\033[1;36mZoxide Path:\033[0m \033[1;33m\$path\033[0m\n"
+    if echo "\$session_line" | grep -q "(zoxide)"; then
+        echo -e "\033[1;36mZoxide Path:\033[0m \033[1;33m\$path\033[0m\n"
+    else
+        echo -e "\033[1;36mFind Path:\033[0m \033[1;33m\$path\033[0m\n"
+    fi
 
     if [ -d "\$path" ]; then
         echo -e "\033[1;36mDirectory contents:\033[0m"
@@ -453,7 +488,7 @@ show_windows() {
 
 show_help() {
     cat << EOF | fzf --reverse --header "Keyboard Shortcuts" --prompt "Press Escape to return" --border="$FZF_BORDER" --height="$FZF_HEIGHT"
-Enter       Select session (switch to active, load tmuxifier, or create session from zoxide path)
+Enter       Select session (switch to active, load tmuxifier, or create session from path)
 ctrl-r      Rename selected session
 ctrl-e      Edit tmuxifier session file
 ctrl-t      Terminate active tmux session
@@ -486,6 +521,8 @@ handle_session() {
         load_tmuxifier_session "$session_name"
     elif echo "$selection" | grep -q "(zoxide)"; then
         handle_zoxide_path "$session_name"
+    elif echo "$selection" | grep -q "(find)"; then
+        handle_find_path "$session_name"
     fi
 }
 
@@ -493,7 +530,7 @@ main() {
     local all_sessions=$(get_all_sessions)
 
     if [ -z "$all_sessions" ]; then
-        echo "No tmux, tmuxifier sessions or zoxide paths found." | fzf --header="Error" --reverse
+        echo "No tmux, tmuxifier sessions or directory paths found." | fzf --header="Error" --reverse
         return 1
     fi
 
@@ -530,8 +567,12 @@ main() {
                 rename_tmux_session "$session_name"
             elif echo "$selection" | grep -q "(tmuxifier)"; then
                 rename_tmuxifier_session "$session_name"
-            elif echo "$selection" | grep -q "(zoxide)"; then
-                tmux display-message "Cannot rename zoxide paths"
+            elif echo "$selection" | grep -q "(zoxide)" || echo "$selection" | grep -q "(find)"; then
+                if echo "$selection" | grep -q "(zoxide)"; then
+                    tmux display-message "Cannot rename zoxide paths"
+                else
+                    tmux display-message "Cannot rename find paths"
+                fi
                 sleep 1
                 main
             fi
