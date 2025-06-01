@@ -237,6 +237,37 @@ create_window() {
     tmux display-message "Created new window"
 }
 
+create_new_session() {
+    # Prompt for session name
+    local session_name=$(echo "" | fzf --print-query --prompt="New session name: " --header="Press Enter to create session" --reverse)
+    
+    if [ -z "$session_name" ]; then
+        return 0  # User cancelled
+    fi
+    
+    # Check if session already exists
+    if tmux has-session -t "$session_name" 2>/dev/null; then
+        tmux display-message "Session '$session_name' already exists"
+        sleep 1
+        main
+        return 1
+    fi
+    
+    # Prompt for starting directory (optional)
+    local start_dir=$(echo "$HOME" | fzf --print-query --query="$HOME" --prompt="Starting directory (optional): " --header="Press Enter to use this directory or leave empty for current" --reverse)
+    
+    # Create the session
+    if [ -n "$start_dir" ] && [ -d "$start_dir" ]; then
+        tmux new-session -d -s "$session_name" -c "$start_dir"
+    else
+        tmux new-session -d -s "$session_name"
+    fi
+    
+    # Switch to the new session
+    tmux switch-client -t "$session_name"
+    tmux display-message "Created and switched to session: $session_name"
+}
+
 load_tmuxifier_session() {
     local session=$1
     local tmuxifier_dir=$(find_tmuxifier)
@@ -590,6 +621,7 @@ ctrl-e      Edit tmuxifier session file
 ctrl-t      Terminate active tmux session
 ctrl-d      Delete tmuxifier session file
 ctrl-w      Show windows in the selected session
+ctrl-n      Create new session
 ctrl-p      Toggle preview mode (currently: $PREVIEW_ENABLED)
 ctrl-f      Filter/search sessions
 ?           Show this help menu
@@ -646,8 +678,8 @@ main() {
         trap cleanup_preview_func EXIT
     fi
 
-    local header_text="Enter:Select / ctrl-r:Rename / ctrl-e:Edit / ctrl-t:Terminate / ctrl-d:Delete / ctrl-w:Windows / ctrl-p:Toggle Preview ($PREVIEW_ENABLED) / ctrl-f:Filter / ?:Help"
-    local fzf_cmd="fzf --header=\"$header_text\" --prompt=\"$FZF_PROMPT\" --pointer=\"$FZF_POINTER\" --ansi --expect=ctrl-r,ctrl-e,ctrl-t,ctrl-d,ctrl-w,ctrl-p,ctrl-f,? --\"$FZF_LAYOUT\" --height=\"$FZF_HEIGHT\" --border=\"$FZF_BORDER\""
+    local header_text="Enter:Select / ctrl-r:Rename / ctrl-e:Edit / ctrl-t:Terminate / ctrl-d:Delete / ctrl-w:Windows / ctrl-n:New Session / ctrl-p:Toggle Preview ($PREVIEW_ENABLED) / ctrl-f:Filter / ?:Help"
+    local fzf_cmd="fzf --header=\"$header_text\" --prompt=\"$FZF_PROMPT\" --pointer=\"$FZF_POINTER\" --ansi --expect=ctrl-r,ctrl-e,ctrl-t,ctrl-d,ctrl-w,ctrl-n,ctrl-p,ctrl-f,? --\"$FZF_LAYOUT\" --height=\"$FZF_HEIGHT\" --border=\"$FZF_BORDER\""
 
     if [ "$PREVIEW_ENABLED" = "true" ]; then
         fzf_cmd="$fzf_cmd --preview=\"$preview_script {}\" --preview-window=\"$FZF_PREVIEW_POSITION\""
@@ -677,7 +709,7 @@ main() {
                     tmux display-message "Cannot rename find paths"
                 fi
                 sleep 1
-                mai
+                main
             fi
         ;;
         "ctrl-e")
@@ -719,6 +751,10 @@ main() {
                 sleep 1
                 main
             fi
+        ;;
+        "ctrl-n")
+            create_new_session
+            main
         ;;
         "ctrl-p")
             toggle_preview
