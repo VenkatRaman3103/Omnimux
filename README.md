@@ -1,6 +1,6 @@
 # Omnimux 🚀
 
-A powerful, interactive tmux session manager that brings together tmux, tmuxifier, zoxide, and fzf for a seamless terminal workflow experience.
+A powerful, interactive tmux session manager that brings together tmux, tmuxifier, zoxide, and fzf for a seamless terminal workflow experience. Now featuring **Harpoon** - quick bookmark navigation for your favorite tmux windows!
 
 ![Screenshot 2025-06-01 235635](https://github.com/user-attachments/assets/556b7bc4-a477-4d9b-9185-2e7fa2720bd6)
 
@@ -10,11 +10,25 @@ https://github.com/user-attachments/assets/27ce53df-9376-437b-8ea5-010e091a0422
 
 ## Features ✨
 
+### Core Session Management
+
 - **Unified Session Management**: Browse and switch between active tmux sessions, tmuxifier layouts, zoxide paths, and find results in one interface
 - **Interactive Preview**: Real-time preview of session content, running processes, directory contents, and git status
 - **Smart Path Integration**: Automatically create sessions from frequently visited directories (zoxide) or discovered paths (find)
 - **Window Management**: Navigate, rename, create, and delete windows within sessions
 - **Tmuxifier Integration**: Load, edit, rename, and manage tmuxifier session layouts
+
+### 🎯 Harpoon Feature
+
+- **Quick Bookmarking**: Instantly bookmark your most important tmux windows for rapid access
+- **Fast Navigation**: Jump between bookmarked windows with a single keypress
+- **Smart Management**: Add, remove, and organize your harpoon entries with intuitive controls
+- **Visual Feedback**: Color-coded interface showing active sessions and window status
+- **Persistent Storage**: Bookmarks persist across tmux sessions and system restarts
+- **Automatic Cleanup**: Intelligently removes invalid entries when sessions/windows are deleted
+
+### Additional Features
+
 - **Highly Customizable**: Extensive configuration options for colors, layout, and behavior
 - **Keyboard-Driven**: Fast navigation with intuitive keyboard shortcuts
 - **Dual Display Modes**: Choose between popup overlay or dedicated window modes
@@ -54,7 +68,11 @@ If you're using [TPM (Tmux Plugin Manager)](https://github.com/tmux-plugins/tpm)
    tmux source-file ~/.tmux.conf
    ```
 
-The default key binding `J` will be automatically configured.
+The default key bindings will be automatically configured:
+
+- `J` - Launch Omnimux session manager
+- `H` - Open Harpoon interface
+- `h` - Add current window to Harpoon
 
 ### Option 2: Manual Installation
 
@@ -85,10 +103,11 @@ The default key binding `J` will be automatically configured.
    cd Omnimux
    ```
 
-2. **Make the script executable:**
+2. **Make the scripts executable:**
 
    ```bash
-   chmod +x script.sh
+   chmod +x scripts/*.sh
+   chmod +x omnimux.tmux
    ```
 
 3. **Add to your PATH (optional):**
@@ -98,27 +117,42 @@ The default key binding `J` will be automatically configured.
    export PATH="$PATH:/path/to/Omnimux"
    ```
 
-4. **Set up tmux key binding manually:**
+4. **Set up tmux key bindings manually:**
    ```bash
    # Add to your ~/.tmux.conf
-   bind-key J run-shell 'path/to/script.sh'
+   bind-key J run-shell 'path/to/scripts/omnimux_main.sh'
+   bind-key H run-shell 'path/to/scripts/harpoon_interface.sh'
+   bind-key h run-shell 'path/to/scripts/harpoon_add.sh'
    ```
 
 ## Usage 🎯
 
-### Basic Usage
+### Session Management
 
 **Default Key Binding**: Press `J` from within any tmux session to launch Omnimux.
 
 You can also run the script directly:
 
 ```bash
-./script.sh
+./scripts/omnimux_main.sh
 ```
+
+### Harpoon Navigation
+
+**Quick Access**: Press `H` to open the Harpoon interface and see all your bookmarked windows.
+
+**Add Bookmark**: Press `h` to add the current window to your Harpoon list.
+
+**Workflow Example**:
+
+1. Navigate to your most important windows (editor, server, logs, etc.)
+2. Press `h` in each window to add them to Harpoon
+3. Use `H` anytime to quickly jump between these bookmarked windows
+4. Access your bookmarks from any session or window
 
 ### Keyboard Shortcuts
 
-#### Main Interface
+#### Main Omnimux Interface
 
 | Key      | Action                              |
 | -------- | ----------------------------------- |
@@ -134,6 +168,19 @@ You can also run the script directly:
 | `?`      | Show help menu                      |
 | `Escape` | Exit                                |
 
+#### Harpoon Interface
+
+| Key      | Action                         |
+| -------- | ------------------------------ |
+| `Enter`  | Jump to selected harpoon entry |
+| `Ctrl+D` | Remove selected harpoon entry  |
+| `Ctrl+A` | Add current window to harpoon  |
+| `Ctrl+R` | Clear all harpoon entries      |
+| `Ctrl+X` | Clean invalid entries          |
+| `Ctrl+P` | Toggle preview mode            |
+| `?`      | Show help menu                 |
+| `Escape` | Exit                           |
+
 #### Window Management
 
 | Key      | Action                    |
@@ -146,20 +193,20 @@ You can also run the script directly:
 
 ## Display Modes 🖥️
 
-Omnimux supports two display modes:
+Omnimux supports two display modes that apply to both the main interface and Harpoon:
 
 ### Popup Mode (Default)
 
-- Opens Omnimux in a tmux popup overlay
+- Opens interfaces in a tmux popup overlay
 - Non-intrusive and quick to access
 - Customizable size and border colors
-- Perfect for quick session switching
+- Perfect for quick session switching and harpoon navigation
 
 ### Window Mode
 
-- Opens Omnimux in a new tmux window
+- Opens interfaces in a new tmux window
 - Provides more space for complex operations
-- Useful when working with many sessions
+- Useful when working with many sessions or harpoon entries
 - Can be easily navigated back to
 
 ```bash
@@ -171,14 +218,16 @@ set -g @omnimux-display-mode "window"
 
 ### Basic Setup Options
 
-| Option                   | Default     | Description                       |
-| ------------------------ | ----------- | --------------------------------- |
-| `@omnimux-key`           | `"J"`       | Key binding to launch Omnimux     |
-| `@omnimux-display-mode`  | `"popup"`   | Display mode: `popup` or `window` |
-| `@omnimux-window-width`  | `"100%"`    | Popup window width                |
-| `@omnimux-window-height` | `"100%"`    | Popup window height               |
-| `@omnimux-border-fg`     | `"#0c0c0c"` | Popup border foreground color     |
-| `@omnimux-border-bg`     | `"#0c0c0c"` | Popup border background color     |
+| Option                     | Default     | Description                           |
+| -------------------------- | ----------- | ------------------------------------- |
+| `@omnimux-key`             | `"J"`       | Key binding to launch Omnimux         |
+| `@omnimux-harpoon-key`     | `"H"`       | Key binding to open Harpoon interface |
+| `@omnimux-harpoon-add-key` | `"h"`       | Key binding to add to Harpoon         |
+| `@omnimux-display-mode`    | `"popup"`   | Display mode: `popup` or `window`     |
+| `@omnimux-window-width`    | `"100%"`    | Popup window width                    |
+| `@omnimux-window-height`   | `"100%"`    | Popup window height                   |
+| `@omnimux-border-fg`       | `"#0c0c0c"` | Popup border foreground color         |
+| `@omnimux-border-bg`       | `"#0c0c0c"` | Popup border background color         |
 
 ### Visual Appearance Colors
 
@@ -188,6 +237,24 @@ set -g @omnimux-display-mode "window"
 | `@omnimux-active-fg`   | `"#ffffff"` | Active selection foreground   |
 | `@omnimux-inactive-bg` | `"#222222"` | Inactive selection background |
 | `@omnimux-inactive-fg` | `"#777777"` | Inactive selection foreground |
+
+### Harpoon-Specific Configuration
+
+| Option                          | Default        | Description                    |
+| ------------------------------- | -------------- | ------------------------------ |
+| `@harpoon-active-color`         | `"#87ceeb"`    | Active harpoon entry color     |
+| `@harpoon-session-color`        | `"#ffffff"`    | Harpoon session name color     |
+| `@harpoon-window-color`         | `"#90ee90"`    | Harpoon window number color    |
+| `@harpoon-mark-color`           | `"#777777"`    | Harpoon mark/label color       |
+| `@harpoon-fzf-height`           | `"100%"`       | Harpoon FZF interface height   |
+| `@harpoon-fzf-border`           | `"none"`       | Harpoon FZF border style       |
+| `@harpoon-fzf-layout`           | `"no-reverse"` | Harpoon FZF layout             |
+| `@harpoon-fzf-preview-position` | `"top:60%"`    | Harpoon preview position       |
+| `@harpoon-fzf-prompt`           | `"Harpoon > "` | Harpoon interface prompt       |
+| `@harpoon-fzf-pointer`          | `"▶"`         | Harpoon interface pointer      |
+| `@harpoon-preview-enabled`      | `"true"`       | Enable/disable harpoon preview |
+| `@harpoon-show-preview-lines`   | `"15"`         | Lines in harpoon preview       |
+| `@harpoon-show-process-count`   | `"3"`          | Processes shown in preview     |
 
 ### Source Type Colors
 
@@ -253,7 +320,7 @@ set -g @omnimux-display-mode "window"
 
 ## Example Configuration 📝
 
-Here's a complete example configuration showing all available options:
+Here's a complete example configuration showing all available options including the new Harpoon feature:
 
 ```bash
 # ~/.tmux.conf
@@ -262,7 +329,9 @@ Here's a complete example configuration showing all available options:
 set -g @plugin 'VenkatRaman3103/Omnimux'
 
 # === Basic Setup ===
-set -g @omnimux-key "s"                    # Change key binding from J to s
+set -g @omnimux-key "s"                    # Change main key from J to s
+set -g @omnimux-harpoon-key "t"            # Change harpoon key from H to t
+set -g @omnimux-harpoon-add-key "T"        # Change harpoon add key from h to T
 set -g @omnimux-display-mode "popup"       # Use popup mode (default)
 set -g @omnimux-window-width "90%"         # Popup width
 set -g @omnimux-window-height "85%"        # Popup height
@@ -274,6 +343,18 @@ set -g @omnimux-active-bg "#2d3748"        # Dark blue active background
 set -g @omnimux-active-fg "#e2e8f0"        # Light gray active foreground
 set -g @omnimux-inactive-bg "#1a202c"      # Darker inactive background
 set -g @omnimux-inactive-fg "#718096"      # Medium gray inactive foreground
+
+# === Harpoon Colors ===
+set -g @harpoon-active-color "#ff6b6b"      # Red for active harpoon entry
+set -g @harpoon-session-color "#4ecdc4"     # Teal for session names
+set -g @harpoon-window-color "#ffe66d"      # Yellow for window numbers
+set -g @harpoon-mark-color "#a8a8a8"        # Gray for marks and labels
+
+# === Harpoon Interface Settings ===
+set -g @harpoon-fzf-prompt "🎯 "            # Target emoji prompt
+set -g @harpoon-fzf-pointer "→"             # Arrow pointer
+set -g @harpoon-preview-enabled "true"      # Enable preview
+set -g @harpoon-fzf-preview-position "right:60%"  # Preview on right
 
 # === Source Type Mark Colors ===
 set -g @omnimux-tmuxifier-mark-color "#4299e1"  # Blue for tmuxifier
@@ -330,9 +411,12 @@ For a simple setup with just the essentials:
 set -g @plugin 'VenkatRaman3103/Omnimux'
 
 # Basic customization
-set -g @omnimux-key "s"                    # Use 's' instead of 'J'
-set -g @omnimux-preview-enabled "true"     # Enable preview
-set -g @omnimux-display-mode "popup"       # Use popup mode
+set -g @omnimux-key "s"                     # Use 's' instead of 'J'
+set -g @omnimux-harpoon-key "a"             # Use 'a' for harpoon interface
+set -g @omnimux-harpoon-add-key "A"         # Use 'A' to add to harpoon
+set -g @omnimux-preview-enabled "true"      # Enable preview
+set -g @harpoon-preview-enabled "true"      # Enable harpoon preview
+set -g @omnimux-display-mode "popup"        # Use popup mode
 ```
 
 ### Color Theme Examples
@@ -342,9 +426,9 @@ set -g @omnimux-display-mode "popup"       # Use popup mode
 ```bash
 set -g @omnimux-active-bg "#2d3748"
 set -g @omnimux-active-fg "#e2e8f0"
-set -g @omnimux-tmuxifier-mark-color "#4299e1"
-set -g @omnimux-zoxide-mark-color "#ed8936"
-set -g @omnimux-find-mark-color "#48bb78"
+set -g @harpoon-active-color "#4ecdc4"
+set -g @harpoon-session-color "#ffffff"
+set -g @harpoon-window-color "#90ee90"
 ```
 
 #### Light Theme
@@ -352,9 +436,9 @@ set -g @omnimux-find-mark-color "#48bb78"
 ```bash
 set -g @omnimux-active-bg "#f7fafc"
 set -g @omnimux-active-fg "#1a202c"
-set -g @omnimux-tmuxifier-mark-color "#3182ce"
-set -g @omnimux-zoxide-mark-color "#d69e2e"
-set -g @omnimux-find-mark-color "#38a169"
+set -g @harpoon-active-color "#3182ce"
+set -g @harpoon-session-color "#2d3748"
+set -g @harpoon-window-color "#38a169"
 ```
 
 #### Cyberpunk Theme
@@ -362,12 +446,14 @@ set -g @omnimux-find-mark-color "#38a169"
 ```bash
 set -g @omnimux-active-bg "#0d1117"
 set -g @omnimux-active-fg "#00ff41"
-set -g @omnimux-tmuxifier-mark-color "#ff0080"
-set -g @omnimux-zoxide-mark-color "#00ffff"
-set -g @omnimux-find-mark-color "#ffff00"
+set -g @harpoon-active-color "#ff0080"
+set -g @harpoon-session-color "#00ffff"
+set -g @harpoon-window-color "#ffff00"
 ```
 
 ## How It Works 🔍
+
+### Session Management
 
 Omnimux aggregates different sources of sessions and paths:
 
@@ -376,11 +462,73 @@ Omnimux aggregates different sources of sessions and paths:
 3. **Zoxide Paths** - Frequently visited directories from your zoxide database
 4. **Find Results** - Directories discovered through filesystem search
 
+### Harpoon Navigation
+
+The Harpoon feature provides a persistent bookmark system:
+
+1. **Storage** - Bookmarks are stored in `~/.tmux-harpoon-list`
+2. **Format** - Each entry is stored as `session_name:window_number`
+3. **Validation** - Automatically validates that sessions and windows still exist
+4. **Navigation** - Provides instant access to your most important windows
+5. **Management** - Easy addition, removal, and cleanup of bookmarks
+
 Each source is color-coded and labeled for easy identification. The preview pane shows relevant information like session content, directory listings, git status, and running processes.
 
-## Integration Examples 🔗
+## Workflow Examples 🔗
 
-### With Tmuxifier
+### Typical Development Workflow with Harpoon
+
+```bash
+# 1. Set up your development environment
+tmux new-session -s "myproject"
+tmux new-window -n "editor"     # Window 1: Your code editor
+tmux new-window -n "server"     # Window 2: Development server
+tmux new-window -n "tests"      # Window 3: Running tests
+tmux new-window -n "logs"       # Window 4: Application logs
+
+# 2. Bookmark your important windows
+# Navigate to each window and press 'h' to add to harpoon:
+tmux select-window -t 1  # Go to editor
+# Press 'h' to add to harpoon
+tmux select-window -t 2  # Go to server
+# Press 'h' to add to harpoon
+# ... and so on
+
+# 3. Now from anywhere, press 'H' to quickly jump between these windows
+# Your harpoon list will show:
+# 1. myproject:1 (editor)
+# 2. myproject:2 (server)
+# 3. myproject:3 (tests)
+# 4. myproject:4 (logs)
+```
+
+### Multi-Project Workflow
+
+```bash
+# Project A
+tmux new-session -s "webapp"
+tmux new-window -n "frontend"
+tmux new-window -n "backend"
+# Add both to harpoon with 'h'
+
+# Project B
+tmux new-session -s "mobile"
+tmux new-window -n "ios"
+tmux new-window -n "android"
+# Add both to harpoon with 'h'
+
+# Now your harpoon contains windows from multiple projects:
+# 1. webapp:1 (frontend)
+# 2. webapp:2 (backend)
+# 3. mobile:1 (ios)
+# 4. mobile:2 (android)
+
+# Access any window instantly with 'H' regardless of current session!
+```
+
+### Integration Examples
+
+#### With Tmuxifier
 
 Create session layouts in `~/.tmuxifier/layouts/`:
 
@@ -392,7 +540,7 @@ new_window "server"
 new_window "logs"
 ```
 
-### With Zoxide
+#### With Zoxide
 
 Your frequently visited directories automatically appear:
 
@@ -403,11 +551,15 @@ z ~/dotfiles
 z ~/documents/notes
 ```
 
-### Advanced Workflow Integration
+#### Advanced Workflow Integration
 
 ```bash
 # Custom key bindings for different workflows
-set -g @omnimux-key "s"                    # Sessions
+set -g @omnimux-key "s"                     # Sessions with 's'
+set -g @omnimux-harpoon-key "a"             # Harpoon with 'a'
+set -g @omnimux-harpoon-add-key "A"         # Add to harpoon with 'A'
+
+# Additional custom bindings
 bind-key "p" display-popup -E "cd ~/projects && find . -type d -name .git | head -10 | xargs dirname"
 ```
 
@@ -429,9 +581,20 @@ bind-key "p" display-popup -E "cd ~/projects && find . -type d -name .git | head
 - Try reloading tmux config: `tmux source-file ~/.tmux.conf`
 - Check if your key conflicts with other bindings
 
+**Harpoon entries not persisting**
+
+- Check if `~/.tmux-harpoon-list` file exists and is writable
+- Verify file permissions: `ls -la ~/.tmux-harpoon-list`
+
+**Harpoon shows "invalid" entries**
+
+- Use `Ctrl+X` in the Harpoon interface to clean up invalid entries
+- Or manually edit `~/.tmux-harpoon-list` to remove problematic lines
+
 **Preview not working**
 
 - Check that preview is enabled: `tmux show-option -g @omnimux-preview-enabled`
+- For Harpoon: `tmux show-option -g @harpoon-preview-enabled`
 - Ensure required commands are available (ls, ps, git)
 
 **Colors not displaying correctly**
@@ -460,6 +623,15 @@ set -x  # Enable debug mode
 set +x  # Disable debug mode
 ```
 
+### Harpoon File Location
+
+The harpoon bookmarks are stored in `~/.tmux-harpoon-list`. You can:
+
+- View entries: `cat ~/.tmux-harpoon-list`
+- Manually edit: `vim ~/.tmux-harpoon-list`
+- Clear all: `> ~/.tmux-harpoon-list`
+- Backup: `cp ~/.tmux-harpoon-list ~/.tmux-harpoon-list.backup`
+
 ## Contributing 🤝
 
 Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
@@ -472,6 +644,14 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 4. Test thoroughly in different tmux environments
 5. Submit a pull request
 
+### Feature Ideas
+
+- Integration with other terminal tools
+- Custom bookmark categories
+- Shared harpoon lists across team members
+- Session templates with pre-configured harpoons
+- Keyboard shortcuts customization UI
+
 ## License 📝
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -482,6 +662,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **fzf** - Fantastic fuzzy finder that makes this tool possible
 - **tmuxifier** - Excellent tmux session management
 - **zoxide** - Smart directory navigation
+- **Neovim Harpoon** - Inspiration for the bookmark navigation feature
 - The tmux and terminal communities for inspiration
 
 ---
