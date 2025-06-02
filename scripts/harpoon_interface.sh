@@ -240,7 +240,7 @@ show_help() {
     local help_text="Enter       Jump to selected harpoon entry
 ctrl-d      Remove selected harpoon entry
 ctrl-a      Add current window to harpoon
-ctrl-c      Clear all harpoon entries
+ctrl-q      Clear all harpoon entries
 ctrl-x      Clean invalid entries (remove non-existent sessions/windows)
 ctrl-p      Toggle preview mode (currently: $PREVIEW_ENABLED)
 ?           Show this help menu
@@ -297,7 +297,7 @@ Exit"
         trap cleanup_preview_func EXIT
     fi
     
-    local header_text="Enter:Jump / ctrl-d:Remove / ctrl-a:Add Current / ctrl-c:Clear All / ctrl-x:Clean Invalid / ctrl-p:Toggle Preview ($PREVIEW_ENABLED) / ?:Help"
+    local header_text="Enter:Jump / ctrl-d:Remove / ctrl-a:Add Current / ctrl-q:Clear All / ctrl-x:Clean Invalid / ctrl-p:Toggle Preview ($PREVIEW_ENABLED) / ?:Help"
     local fzf_cmd="fzf --header=\"$header_text\" --prompt=\"$FZF_PROMPT\" --pointer=\"$FZF_POINTER\" --ansi --expect=ctrl-d,ctrl-a,ctrl-c,ctrl-x,ctrl-p,? --$FZF_LAYOUT --height=\"$FZF_HEIGHT\" --border=\"$FZF_BORDER\""
     
     if [ "$PREVIEW_ENABLED" = "true" ]; then
@@ -321,7 +321,7 @@ Exit"
         "ctrl-a")
             add_current_to_harpoon
             ;;
-        "ctrl-c")
+        "ctrl-q")
             clear_all_harpoons
             ;;
         "ctrl-x")
