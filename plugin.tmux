@@ -38,10 +38,8 @@ case "$display_mode" in
         ;;
 esac
 
-# Tmux Harpoon Plugin Configuration
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Default configuration
 default_harpoon_key="h"
 default_add_key="a"
 default_display_mode="popup"
@@ -50,7 +48,6 @@ default_window_height="100%"
 default_border_fg="#0c0c0c"
 default_border_bg="#0c0c0c"
 
-# Get configuration from tmux options
 harpoon_key=$(tmux show-option -gqv @harpoon-key)
 harpoon_key=${harpoon_key:-$default_harpoon_key}
 
@@ -72,7 +69,6 @@ border_fg=${border_fg:-$default_border_fg}
 border_bg=$(tmux show-option -gqv @harpoon-border-bg)
 border_bg=${border_bg:-$default_border_bg}
 
-# Bind harpoon navigation key
 case "$display_mode" in
     "popup")
         tmux bind-key "$harpoon_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/tmux-harpoon.sh"
@@ -85,5 +81,4 @@ case "$display_mode" in
         ;;
 esac
 
-# Bind add current window key
 tmux bind-key "$add_key" run-shell "$CURRENT_DIR/add.sh"
