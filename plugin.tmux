@@ -37,3 +37,53 @@ case "$display_mode" in
         tmux bind-key "$key_binding" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_bg" "$CURRENT_DIR/script.sh"
         ;;
 esac
+
+# Tmux Harpoon Plugin Configuration
+CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Default configuration
+default_harpoon_key="h"
+default_add_key="a"
+default_display_mode="popup"
+default_window_width="100%"
+default_window_height="100%"
+default_border_fg="#0c0c0c"
+default_border_bg="#0c0c0c"
+
+# Get configuration from tmux options
+harpoon_key=$(tmux show-option -gqv @harpoon-key)
+harpoon_key=${harpoon_key:-$default_harpoon_key}
+
+add_key=$(tmux show-option -gqv @harpoon-add-key)
+add_key=${add_key:-$default_add_key}
+
+display_mode=$(tmux show-option -gqv @harpoon-display-mode)
+display_mode=${display_mode:-$default_display_mode}
+
+window_width=$(tmux show-option -gqv @harpoon-window-width)
+window_width=${window_width:-$default_window_width}
+
+window_height=$(tmux show-option -gqv @harpoon-window-height)
+window_height=${window_height:-$default_window_height}
+
+border_fg=$(tmux show-option -gqv @harpoon-border-fg)
+border_fg=${border_fg:-$default_border_fg}
+
+border_bg=$(tmux show-option -gqv @harpoon-border-bg)
+border_bg=${border_bg:-$default_border_bg}
+
+# Bind harpoon navigation key
+case "$display_mode" in
+    "popup")
+        tmux bind-key "$harpoon_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/tmux-harpoon.sh"
+        ;;
+    "window")
+        tmux bind-key "$harpoon_key" new-window "$CURRENT_DIR/tmux-harpoon.sh"
+        ;;
+    *)
+        tmux bind-key "$harpoon_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/tmux-harpoon.sh"
+        ;;
+esac
+
+# Bind add current window key
+tmux bind-key "$add_key" run-shell "$CURRENT_DIR/add.sh"
