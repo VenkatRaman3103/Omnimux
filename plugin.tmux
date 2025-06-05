@@ -7,10 +7,12 @@ default_window_width="100%"
 default_window_height="100%"
 default_border_fg="#0c0c0c"
 default_border_bg="#0c0c0c"
+
 default_harpoon_key="H"
 default_harpoon_add_key="h"
-default_edit_session_key="S"
-default_edit_windows_key="W"
+
+default_edit_session_key="s"
+default_edit_windows_key="w"
 
 key_binding=$(tmux show-option -gqv @omnimux-key)
 key_binding=${key_binding:-$default_key_binding}
