@@ -6,7 +6,9 @@ A powerful, interactive tmux session manager that brings together tmux, tmuxifie
 
 https://github.com/user-attachments/assets/4860255b-97df-47f9-8e63-8fc5d29e041a
 
-https://github.com/user-attachments/assets/27ce53df-9376-437b-8ea5-010e091a0422
+https://github.com/user-attachments/assets/55229664-67e4-4811-b981-6fd23a4e4e6d
+
+https://github.com/user-attachments/assets/c90494d2-de23-4484-bedc-20d458d3386e
 
 ## Features ✨
 
