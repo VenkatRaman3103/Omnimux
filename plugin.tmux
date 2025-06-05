@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 default_key_binding="J"
@@ -8,10 +7,8 @@ default_window_width="100%"
 default_window_height="100%"
 default_border_fg="#0c0c0c"
 default_border_bg="#0c0c0c"
-
 default_harpoon_key="H"
 default_harpoon_add_key="h"
-
 default_edit_session_key="S"
 default_edit_windows_key="W"
 
@@ -40,10 +37,10 @@ harpoon_add_key=$(tmux show-option -gqv @omnimux-harpoon-add-key)
 harpoon_add_key=${harpoon_add_key:-$default_harpoon_add_key}
 
 edit_session_key=$(tmux show-option -gqv @omnimux-edit-session-key)
-edit_session_key=${harpoon_key:-$default_edit_session_key}
+edit_session_key=${edit_session_key:-$default_edit_session_key}
 
 edit_windows_key=$(tmux show-option -gqv @omnimux-edit-windows-key)
-edit_windows_key=${harpoon_add_key:-$default_edit_windows_key}
+edit_windows_key=${edit_windows_key:-$default_edit_windows_key}  
 
 case "$display_mode" in
     "popup")
@@ -84,13 +81,12 @@ case "$display_mode" in
         ;;
 esac
 
-
 case "$display_mode" in
     "popup")
-        tmux bind-key "$edit_session_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/editor_windows.sh"
+        tmux bind-key "$edit_windows_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/editor_windows.sh"
         ;;
     "window")
-        tmux bind-key "$edit_session_key" new-window "$CURRENT_DIR/scripts/editor_windows.sh"
+        tmux bind-key "$edit_windows_key" new-window "$CURRENT_DIR/scripts/editor_windows.sh"
         ;;
     *)
         tmux bind-key "$edit_windows_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/editor_windows.sh"
