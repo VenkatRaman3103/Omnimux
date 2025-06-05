@@ -70,9 +70,9 @@ PREVIEW_ENABLED=$(get_tmux_option "@omnimux-preview-enabled" "false")
 LS_COMMAND=$(get_tmux_option "@omnimux-ls-command" "ls -la")
 
 MAX_ZOXIDE_PATHS=$(get_tmux_option "@omnimux-max-zoxide-paths" "20")
-MAX_FIND_PATHS=$(get_tmux_option "@omnimux-max-find-paths" "15")
+MAX_FIND_PATHS=$(get_tmux_option "@omnimux-max-find-paths" "500")
 FIND_BASE_DIR=$(get_tmux_option "@omnimux-find-base-dir" "$HOME")
-FIND_MAX_DEPTH=$(get_tmux_option "@omnimux-find-max-depth" "3")
+FIND_MAX_DEPTH=$(get_tmux_option "@omnimux-find-max-depth" "5")
 FIND_MIN_DEPTH=$(get_tmux_option "@omnimux-find-min-depth" "1")
 SHOW_PROCESS_COUNT=$(get_tmux_option "@omnimux-show-process-count" "3")
 SHOW_PREVIEW_LINES=$(get_tmux_option "@omnimux-show-preview-lines" "15")
@@ -176,7 +176,6 @@ filter_tmuxifier_sessions() {
     while IFS= read -r session_line; do
         if [ -n "$session_line" ]; then
             local session_name=$(echo "$session_line" | awk '{print $1}')
-            # Fixed: Use grep -F to treat session_name as literal string
             if ! echo "$active_sessions" | grep -qF "$session_name"; then
                 filtered_sessions="${filtered_sessions}${session_line}
 "
@@ -191,13 +190,13 @@ get_all_sessions() {
     local active_sessions=$(get_tmux_sessions)
     local tmuxifier_sessions=$(filter_tmuxifier_sessions)
     local zoxide_paths=$(get_zoxide_paths)
-    local find_paths=$(get_find_paths)
+    # local find_paths=$(get_find_paths)
 
     {
         echo "$active_sessions"
         echo "$tmuxifier_sessions"
         echo "$zoxide_paths"
-        echo "$find_paths"
+        # echo "$find_paths"
     } | sed '/^$/d'
 }
 
@@ -616,7 +615,7 @@ show_windows() {
         return 1
     fi
 
-    local header_text="Enter:Select / ctrl-r:Rename / ctrl-d:Delete / ctrl-n:New Window / ?:Help"
+    local header_text="ctrl-r:Rename / ctrl-d:Delete / ctrl-n:New Window / ?:Help"
     local fzf_cmd="fzf --header=\"$header_text\" --prompt=\"$FZF_WINDOW_PROMPT\" --pointer=\"$FZF_WINDOW_POINTER\" --ansi --expect=ctrl-r,ctrl-d,ctrl-n,? --\"$FZF_WINDOW_LAYOUT\" --height=\"$FZF_HEIGHT\" --border=\"$FZF_BORDER\""
 
     if [ "$PREVIEW_ENABLED" = "true" ]; then
@@ -700,10 +699,10 @@ ctrl-d      Delete tmuxifier session file
 ctrl-w      Show windows in the selected session
 ctrl-n      Create new session
 ctrl-p      Toggle preview mode (currently: $PREVIEW_ENABLED)
-ctrl-f      Filter/search sessions
 ?           Show this help menu
 Escape      Exit"
 
+# ctrl-f      Filter/search sessions
     echo "$help_text" | fzf --reverse --header "Keyboard Shortcuts" --prompt "Press Escape to return" --border="$FZF_BORDER" --height="$FZF_HEIGHT"
     main
 }
@@ -757,8 +756,8 @@ main() {
         trap cleanup_preview_func EXIT
     fi
 
-    local header_text="Enter:Select / ctrl-r:Rename / ctrl-e:Edit / ctrl-t:Terminate / ctrl-d:Delete / ctrl-w:Windows / ctrl-n:New Session / ctrl-p:Toggle Preview ($PREVIEW_ENABLED) / ctrl-f:Filter / ?:Help"
-    local fzf_cmd="fzf --header=\"$header_text\" --prompt=\"$FZF_PROMPT\" --pointer=\"$FZF_POINTER\" --ansi --expect=ctrl-r,ctrl-e,ctrl-t,ctrl-d,ctrl-w,ctrl-n,ctrl-p,ctrl-f,? --\"$FZF_LAYOUT\" --height=\"$FZF_HEIGHT\" --border=\"$FZF_BORDER\""
+    local header_text="ctrl-r:Rename / ctrl-e:Edit / ctrl-t:Terminate / ctrl-d:Delete / ctrl-w:Windows / ctrl-n:New Session / ctrl-p:Preview ($PREVIEW_ENABLED) / ?:Help"
+    local fzf_cmd="fzf --header=\"$header_text\" --prompt=\"$FZF_PROMPT\" --pointer=\"$FZF_POINTER\" --ansi --expect=ctrl-r,ctrl-e,ctrl-t,ctrl-d,ctrl-w,ctrl-n,ctrl-p,ctrl-/,? --\"$FZF_LAYOUT\" --height=\"$FZF_HEIGHT\" --border=\"$FZF_BORDER\""
 
     if [ "$PREVIEW_ENABLED" = "true" ]; then
         fzf_cmd="$fzf_cmd --preview=\"$preview_script {}\" --preview-window=\"$FZF_PREVIEW_POSITION\""
@@ -837,6 +836,30 @@ main() {
         ;;
         "ctrl-p")
             toggle_preview
+        ;;
+        "ctrl-/")
+            local find_sessions=$(get_find_paths)
+            if [ -z "$find_sessions" ]; then
+                echo "No find results available." | fzf --header="Error" --reverse
+                main
+                return
+            fi
+            
+            local find_fzf_cmd="fzf --header=\"Find Results - Enter:Select / Escape:Back\" --prompt=\"$FZF_PROMPT\" --pointer=\"$FZF_POINTER\" --ansi --\"$FZF_LAYOUT\" --height=\"$FZF_HEIGHT\" --border=\"$FZF_BORDER\""
+            
+            if [ "$PREVIEW_ENABLED" = "true" ]; then
+                find_fzf_cmd="$find_fzf_cmd --preview=\"$preview_script {}\" --preview-window=\"$FZF_PREVIEW_POSITION\""
+            fi
+            
+            local find_result=$(echo "$find_sessions" | eval "$find_fzf_cmd")
+            
+            if [ -n "$find_result" ]; then
+                handle_session "$find_result"
+            else
+                main
+            fi
+            [ -n "$cleanup_preview_func" ] && cleanup_preview_func
+            return
         ;;
         "?")
             show_help
