@@ -12,6 +12,9 @@ default_border_bg="#0c0c0c"
 default_harpoon_key="H"
 default_harpoon_add_key="h"
 
+default_edit_session_key="S"
+default_edit_windows_key="W"
+
 key_binding=$(tmux show-option -gqv @omnimux-key)
 key_binding=${key_binding:-$default_key_binding}
 
@@ -35,6 +38,12 @@ harpoon_key=${harpoon_key:-$default_harpoon_key}
 
 harpoon_add_key=$(tmux show-option -gqv @omnimux-harpoon-add-key)
 harpoon_add_key=${harpoon_add_key:-$default_harpoon_add_key}
+
+edit_session_key=$(tmux show-option -gqv @omnimux-edit-session-key)
+edit_session_key=${harpoon_key:-$default_edit_session_key}
+
+edit_windows_key=$(tmux show-option -gqv @omnimux-edit-windows-key)
+edit_windows_key=${harpoon_add_key:-$default_edit_windows_key}
 
 case "$display_mode" in
     "popup")
@@ -60,5 +69,30 @@ case "$display_mode" in
     *)
         tmux bind-key "$harpoon_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/harpoon_interface.sh"
         tmux bind-key "$harpoon_add_key" run-shell "$CURRENT_DIR/scripts/harpoon_add.sh"
+        ;;
+esac
+
+case "$display_mode" in
+    "popup")
+        tmux bind-key "$edit_session_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/editor_sessions.sh"
+        ;;
+    "window")
+        tmux bind-key "$edit_session_key" new-window "$CURRENT_DIR/scripts/editor_sessions.sh"
+        ;;
+    *)
+        tmux bind-key "$edit_session_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/editor_sessions.sh"
+        ;;
+esac
+
+
+case "$display_mode" in
+    "popup")
+        tmux bind-key "$edit_session_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/editor_windows.sh"
+        ;;
+    "window")
+        tmux bind-key "$edit_session_key" new-window "$CURRENT_DIR/scripts/editor_windows.sh"
+        ;;
+    *)
+        tmux bind-key "$edit_windows_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/editor_windows.sh"
         ;;
 esac
