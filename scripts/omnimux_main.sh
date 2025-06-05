@@ -190,13 +190,13 @@ get_all_sessions() {
     local active_sessions=$(get_tmux_sessions)
     local tmuxifier_sessions=$(filter_tmuxifier_sessions)
     local zoxide_paths=$(get_zoxide_paths)
-    # local find_paths=$(get_find_paths)
+    local find_paths=$(get_find_paths)
 
     {
         echo "$active_sessions"
         echo "$tmuxifier_sessions"
         echo "$zoxide_paths"
-        # echo "$find_paths"
+        echo "$find_paths"
     } | sed '/^$/d'
 }
 
