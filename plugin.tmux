@@ -11,7 +11,7 @@ default_window_height="100%"
 default_editor_window_width="50%"
 default_editor_window_height="50%"
 
-default_utility_window_width="50%"
+default_utility_window_width="40%"
 default_utility_window_height="50%"
 
 default_border_fg="#0c0c0c"
@@ -138,5 +138,6 @@ esac
 case "$utility_mode" in
     "verbose")
         tmux bind-key "$utlity_session_key" display-popup -E -w "$utility_window_width" -h "$utility_window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/utility/verbose/sessions.sh"
+        tmux bind-key "$utlity_window_key" display-popup -E -w "$utility_window_width" -h "$utility_window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/utility/verbose/windows.sh"
         ;;
 esac
