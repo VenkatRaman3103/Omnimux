@@ -141,4 +141,9 @@ case "$utility_mode" in
         tmux bind-key "$utlity_window_key" display-popup -E -w "$utility_window_width" -h "$utility_window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/utility/verbose/windows.sh"
         tmux bind-key "$utlity_tmuxfier_key" display-popup -E -w "$utility_window_width" -h "$utility_window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/utility/verbose/tmuxifier.sh"
         ;;
+    "minimal")
+        tmux bind-key "$utlity_session_key" display-popup -E -w "$utility_window_width" -h "$utility_window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/utility/minimal/sessions.sh"
+        tmux bind-key "$utlity_window_key" display-popup -E -w "$utility_window_width" -h "$utility_window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/utility/minimal/windows.sh"
+        tmux bind-key "$utlity_tmuxfier_key" display-popup -E -w "$utility_window_width" -h "$utility_window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/utility/minimal/tmuxifier.sh"
+        ;;
 esac

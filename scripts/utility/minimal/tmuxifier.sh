@@ -1,0 +1,35 @@
+#!/bin/bash
+
+find_layouts_dir() {
+    local tmuxifier_paths=(
+        "$HOME/.tmuxifier/layouts"
+        "$HOME/.local/share/tmuxifier/layouts"
+        "/usr/local/share/tmuxifier/layouts"
+        "${TMUXIFIER_LAYOUT_PATH}"
+    )
+    
+    for path in "${tmuxifier_paths[@]}"; do
+        if [ -d "$path" ]; then
+            echo "$path"
+            return 0
+        fi
+    done
+    return 1
+}
+
+layouts_dir=$(find_layouts_dir)
+if [ -z "$layouts_dir" ]; then
+    echo "tmuxifier layouts directory not found"
+    exit 1
+fi
+
+sessions=$(find "$layouts_dir" -name "*.session.sh" -exec basename {} \; | sed 's/\.session\.sh$//' | sort)
+selected=$(echo "$sessions" | fzf --reverse --header="Tmuxifier Sessions (Enter: load, Esc: cancel)")
+
+if [ -n "$selected" ]; then
+    if tmux has-session -t "$selected" 2>/dev/null; then
+        tmux switch-client -t "$selected"
+    else
+        tmuxifier load-session "$selected"
+    fi
+fi
