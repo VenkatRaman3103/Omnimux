@@ -13,7 +13,7 @@ default_border_fg="#0c0c0c"
 default_border_bg="#0c0c0c"
 
 default_harpoon_key="H"
-default_harpoon_add_key="h"
+default_harpoon_add_key="a"
 
 default_edit_session_key="y"
 default_edit_windows_key="Y"
