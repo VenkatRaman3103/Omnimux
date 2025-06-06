@@ -224,18 +224,25 @@ set -g @omnimux-utility-windows-key "w"    # Window utility (default: k)
 set -g @omnimux-utility-tmuxifier-key "u"  # Tmuxifier utility (default: h)
 
 # Display mode
-set -g @omnimux-display-mode "popup"       # or "window"
-set -g @omnimux-window-width "90%"
-set -g @omnimux-window-height "85%"
+set -g @omnimux-display-mode "popup"       # or "window" (default: popup)
+set -g @omnimux-window-width "90%"         # Main window width (default: 100%)
+set -g @omnimux-window-height "85%"        # Main window height (default: 100%)
+
+# Border colors
+set -g @omnimux-border-fg "#0c0c0c"        # Border foreground (default: #0c0c0c)
+set -g @omnimux-border-bg "#0c0c0c"        # Border background (default: #0c0c0c)
 
 # Editor size
-set -g @omnimux-editor-window-width "60%"
-set -g @omnimux-editor-window-height "70%"
+set -g @omnimux-editor-window-width "60%"  # Editor width (default: 50%)
+set -g @omnimux-editor-window-height "70%" # Editor height (default: 50%)
 
 # Utility size
-set -g @omnimux-utility-window-width "50%"
-set -g @omnimux-utility-window-height "60%"
-set -g @omnimux-utility-mode "verbose"     # or "minimal"
+set -g @omnimux-utility-window-width "50%" # Utility width (default: 40%)
+set -g @omnimux-utility-window-height "60%" # Utility height (default: 50%)
+set -g @omnimux-utility-mode "verbose"     # or "minimal" (default: verbose)
+
+# Editor
+set -g @omnimux-editor "nvim"              # Editor command (default: vim or $EDITOR)
 ```
 
 ### Colors
@@ -247,10 +254,11 @@ set -g @omnimux-active-fg "#ffffff"        # Selected item text
 set -g @omnimux-inactive-bg "#222222"      # Unselected background
 set -g @omnimux-inactive-fg "#777777"      # Unselected text
 
-# Bookmarks colors
+# Bookmarks colors (Note: fix typo 'bookmars' to 'bookmarks' in your code)
 set -g @bookmarks-active-color "#87ceeb"     # Active bookmark
 set -g @bookmarks-session-color "#ffffff"    # Session names
 set -g @bookmarks-window-color "#90ee90"     # Window numbers
+set -g @bookmarks-mark-color "#777777"       # Bookmark marks
 
 # Editor colors
 set -g @omnimux-editor-active-bg "#2d3748"   # Active tab
@@ -276,6 +284,10 @@ set -g @omnimux-find-path-color "#dda0dd"         # Find results
 
 # Marks and indicators
 set -g @omnimux-tmux-mark-color "#333333"         # Session type marks
+set -g @omnimux-tmux-color "#333333"              # Tmux session color
+set -g @omnimux-tmuxifier-mark-color "#333333"    # Tmuxifier marks
+set -g @omnimux-zoxide-mark-color "#333333"       # Zoxide marks
+set -g @omnimux-find-mark-color "#333333"         # Find marks
 set -g @omnimux-active-session-color "#333333"    # Current session indicator
 ```
 
@@ -283,47 +295,50 @@ set -g @omnimux-active-session-color "#333333"    # Current session indicator
 
 ```bash
 # Path limits
-set -g @omnimux-max-zoxide-paths "20"       # Max zoxide results
-set -g @omnimux-max-find-paths "15"         # Max find results
-set -g @omnimux-find-base-dir "$HOME"       # Where to search
-set -g @omnimux-find-max-depth "3"          # Search depth
-set -g @omnimux-find-min-depth "1"
+set -g @omnimux-max-zoxide-paths "20"       # Max zoxide results (default: 20)
+set -g @omnimux-max-find-paths "15"         # Max find results (default: 500)
+set -g @omnimux-find-base-dir "$HOME"       # Where to search (default: $HOME)
+set -g @omnimux-find-max-depth "3"          # Search depth (default: 5)
+set -g @omnimux-find-min-depth "1"          # Minimum depth (default: 1)
 
 # Preview settings
-set -g @omnimux-preview-enabled "true"      # Enable previews
-set -g @bookmarks-preview-enabled "true"    # Enable bookmarks preview
-set -g @omnimux-show-preview-lines "15"     # Preview length
-set -g @omnimux-show-process-count "3"      # Processes to show
+set -g @omnimux-preview-enabled "true"      # Enable previews (default: false)
+set -g @bookmarks-preview-enabled "true"    # Enable bookmarks preview (default: true)
+set -g @omnimux-show-preview-lines "15"     # Preview length (default: 15)
+set -g @omnimux-show-process-count "3"      # Processes to show (default: 3)
+set -g @omnimux-show-ls-lines "20"          # Directory listing lines (default: 20)
+set -g @omnimux-show-git-status-lines "10"  # Git status lines (default: 10)
 
 # Commands
-set -g @omnimux-ls-command "ls -la"         # Directory listing
-set -g @omnimux-editor "nvim"               # Editor for files
+set -g @omnimux-ls-command "ls -la"         # Directory listing (default: ls -la)
+set -g @omnimux-editor "nvim"               # Editor for files (default: vim or $EDITOR)
 ```
 
 ### FZF Interface
 
 ```bash
 # Main interface
-set -g @omnimux-fzf-height "100%"
-set -g @omnimux-fzf-border "none"
-set -g @omnimux-fzf-layout "no-reverse"
-set -g @omnimux-fzf-prompt "> "
-set -g @omnimux-fzf-pointer "▶"
-set -g @omnimux-fzf-preview-position "bottom:60%"
+set -g @omnimux-fzf-height "100%"                        # FZF height (default: 100%)
+set -g @omnimux-fzf-border "none"                        # FZF border (default: none)
+set -g @omnimux-fzf-layout "no-reverse"                  # FZF layout (default: no-reverse)
+set -g @omnimux-fzf-prompt "> "                          # FZF prompt (default: "> ")
+set -g @omnimux-fzf-pointer "▶"                          # FZF pointer (default: "▶")
+set -g @omnimux-fzf-preview-position "bottom:60%"        # Preview position (default: bottom:60%)
 
 # Window selection
-set -g @omnimux-fzf-window-layout "reverse"
-set -g @omnimux-fzf-window-prompt "> "
-set -g @omnimux-fzf-window-pointer "▶"
-set -g @omnimux-fzf-preview-window-position "right:75%"
+set -g @omnimux-fzf-window-layout "reverse"              # Window layout (default: reverse)
+set -g @omnimux-fzf-window-prompt "> "                   # Window prompt (default: "> ")
+set -g @omnimux-fzf-window-pointer "▶"                   # Window pointer (default: "▶")
+set -g @omnimux-fzf-preview-window-position "right:75%"  # Window preview position (default: right:75%)
 
-# Bookmarks interface
-set -g @bookmarks-fzf-height "100%"
-set -g @bookmarks-fzf-border "none"
-set -g @bookmarks-fzf-layout "no-reverse"
-set -g @bookmarks-fzf-prompt "Bookmarks > "
-set -g @bookmarks-fzf-pointer "▶"
-set -g @bookmarks-fzf-preview-position "top:60%"
+# Bookmarks interface (Note: fix typo 'bookmars' to 'bookmarks' in your code)
+set -g @bookmarks-fzf-height "100%"                      # Bookmarks height (default: 100%)
+set -g @bookmarks-fzf-border "none"                      # Bookmarks border (default: none)
+set -g @bookmarks-fzf-layout "no-reverse"                # Bookmarks layout (default: no-reverse)
+set -g @bookmarks-fzf-prompt "Bookmarks > "              # Bookmarks prompt (default: "bookmars > ")
+set -g @bookmarks-fzf-pointer "▶"                        # Bookmarks pointer (default: "▶")
+set -g @bookmarks-fzf-preview-position "top:60%"         # Bookmarks preview position (default: top:60%)
+set -g @bookmarks-show-preview-lines "15"                # Bookmarks preview lines (default: 15)
 ```
 
 ## Example Workflows
@@ -398,7 +413,8 @@ set -g @bookmarks-fzf-preview-position "top:60%"
 
 - Session Editor: `/tmp/tmux_sessions_*`
 - Window Editor: `/tmp/tmux_windows_*`
-- Bookmarks: `~/.tmux-bookmarks-list`
+- Bookmarks: `~/.tmux-bookmarks-list` (Note: fix typo 'bookmars' to 'bookmarks' in your code)
+- Temporary files: `/tmp/tmux_bookmarks_$` and `/tmp/tmux_bookmarks_original_$`
 
 **Check configuration:**
 
