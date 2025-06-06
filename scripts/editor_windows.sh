@@ -107,16 +107,15 @@ manage_windows() {
     fi
     
     {
-        show_help
-        echo ""
         cat "$TEMP_FILE"
+        # echo ""
+        # show_help
     } > "${TEMP_FILE}.tmp" && mv "${TEMP_FILE}.tmp" "$TEMP_FILE"
     
     nvim \
         -c "set laststatus=0 noshowcmd noshowmode noruler signcolumn=no foldcolumn=0 nocursorline nocursorcolumn" \
         -c "syntax off | hi Comment ctermfg=darkgray | hi Special ctermfg=yellow" \
         -c "match Comment /^#.*/ | 2match Special /\*/" \
-        -c "normal G" \
         "$TEMP_FILE"
     
     if ! diff -q "$TEMP_FILE" "$ORIGINAL_FILE" >/dev/null 2>&1; then
