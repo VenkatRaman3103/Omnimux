@@ -5,7 +5,7 @@ current_session=$(tmux display-message -p '#S')
 windows=$(tmux list-windows -t "$current_session" -F "#I: #W")
 
 selected=$(echo "$windows" | \
-  fzf --reverse --header="Windows in $current_session" \
+  fzf --no-reverse --header="Windows in $current_session" \
       --delimiter=': ' \
       --with-nth=1.. )
 

@@ -24,7 +24,7 @@ if [ -z "$layouts_dir" ]; then
 fi
 
 sessions=$(find "$layouts_dir" -name "*.session.sh" -exec basename {} \; | sed 's/\.session\.sh$//' | sort)
-selected=$(echo "$sessions" | fzf --reverse --header="Tmuxifier Sessions (Enter: load, Esc: cancel)")
+selected=$(echo "$sessions" | fzf --no-reverse --header="Tmuxifier Sessions (Enter: load, Esc: cancel)")
 
 if [ -n "$selected" ]; then
     if tmux has-session -t "$selected" 2>/dev/null; then
