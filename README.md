@@ -10,6 +10,9 @@ https://github.com/user-attachments/assets/55229664-67e4-4811-b981-6fd23a4e4e6d
 
 https://github.com/user-attachments/assets/c90494d2-de23-4484-bedc-20d458d3386e
 
+https://github.com/user-attachments/assets/843c2dba-7de9-4a99-ac90-bb634962ff3e
+
+
 ## Features ✨
 
 ### Core Session Management
