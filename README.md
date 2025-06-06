@@ -1,6 +1,6 @@
 # Omnimux: tmux Session Manager
 
-A tmux session manager that combines tmux, tmuxifier, zoxide, and fzf into one interface. Includes bookmark navigation (Harpoon), session/window editors, and quick navigation tools.
+A tmux session manager that combines tmux, tmuxifier, zoxide, and fzf into one interface. Includes bookmark navigation, session/window editors, and quick navigation tools.
 
 ![Screenshot 2025-06-01 235635](https://github.com/user-attachments/assets/556b7bc4-a477-4d9b-9185-2e7fa2720bd6)
 
@@ -26,7 +26,7 @@ https://github.com/user-attachments/assets/f2f54b61-1a56-4c24-8c91-2d7a632871a7
 - Manage windows within sessions
 - Load and edit tmuxifier session layouts
 
-### Harpoon (Bookmarks)
+### Bookmarks
 
 - Bookmark important tmux windows for quick access
 - Jump between bookmarked windows with one keypress
@@ -79,8 +79,8 @@ tmux source-file ~/.tmux.conf
 Default key bindings:
 
 - `J` - Main session manager
-- `H` - Harpoon interface
-- `a` - Add window to Harpoon
+- `H` - Bookmarks interface
+- `a` - Add window to bookmarks
 - `y` - Session editor
 - `Y` - Window editor
 - `j` - Session utility
@@ -116,7 +116,7 @@ tmux source-file ~/.tmux.conf
 - Use Ctrl+R to rename, Ctrl+D to delete
 - Ctrl+W to show windows in selected session
 
-### Harpoon Bookmarks
+### Bookmarks
 
 - Press `H` to see all bookmarks
 - Press `a` to bookmark current window
@@ -178,7 +178,7 @@ Press `j` (sessions), `k` (windows), or `h` (tmuxifier) for tabbed interfaces:
 | `?`      | Help                     |
 | `Escape` | Exit                     |
 
-### Harpoon Interface
+### Bookmarks Interface
 
 | Key      | Action              |
 | -------- | ------------------- |
@@ -215,8 +215,8 @@ Press `j` (sessions), `k` (windows), or `h` (tmuxifier) for tabbed interfaces:
 ```bash
 # Change key bindings
 set -g @omnimux-key "o"                    # Main interface (default: J)
-set -g @omnimux-harpoon-key "t"            # Harpoon interface (default: H)
-set -g @omnimux-harpoon-add-key "T"        # Add bookmark (default: a)
+set -g @omnimux-bookmarks-key "t"          # Bookmarks interface (default: H)
+set -g @omnimux-bookmarks-add-key "T"      # Add bookmark (default: a)
 set -g @omnimux-edit-session-key "E"       # Session editor (default: y)
 set -g @omnimux-edit-windows-key "W"       # Window editor (default: Y)
 set -g @omnimux-utility-session-key "s"    # Session utility (default: j)
@@ -247,10 +247,10 @@ set -g @omnimux-active-fg "#ffffff"        # Selected item text
 set -g @omnimux-inactive-bg "#222222"      # Unselected background
 set -g @omnimux-inactive-fg "#777777"      # Unselected text
 
-# Harpoon colors
-set -g @harpoon-active-color "#87ceeb"     # Active bookmark
-set -g @harpoon-session-color "#ffffff"    # Session names
-set -g @harpoon-window-color "#90ee90"     # Window numbers
+# Bookmarks colors
+set -g @bookmarks-active-color "#87ceeb"     # Active bookmark
+set -g @bookmarks-session-color "#ffffff"    # Session names
+set -g @bookmarks-window-color "#90ee90"     # Window numbers
 
 # Editor colors
 set -g @omnimux-editor-active-bg "#2d3748"   # Active tab
@@ -291,7 +291,7 @@ set -g @omnimux-find-min-depth "1"
 
 # Preview settings
 set -g @omnimux-preview-enabled "true"      # Enable previews
-set -g @harpoon-preview-enabled "true"      # Enable harpoon preview
+set -g @bookmarks-preview-enabled "true"    # Enable bookmarks preview
 set -g @omnimux-show-preview-lines "15"     # Preview length
 set -g @omnimux-show-process-count "3"      # Processes to show
 
@@ -317,13 +317,13 @@ set -g @omnimux-fzf-window-prompt "> "
 set -g @omnimux-fzf-window-pointer "▶"
 set -g @omnimux-fzf-preview-window-position "right:75%"
 
-# Harpoon interface
-set -g @harpoon-fzf-height "100%"
-set -g @harpoon-fzf-border "none"
-set -g @harpoon-fzf-layout "no-reverse"
-set -g @harpoon-fzf-prompt "Harpoon > "
-set -g @harpoon-fzf-pointer "▶"
-set -g @harpoon-fzf-preview-position "top:60%"
+# Bookmarks interface
+set -g @bookmarks-fzf-height "100%"
+set -g @bookmarks-fzf-border "none"
+set -g @bookmarks-fzf-layout "no-reverse"
+set -g @bookmarks-fzf-prompt "Bookmarks > "
+set -g @bookmarks-fzf-pointer "▶"
+set -g @bookmarks-fzf-preview-position "top:60%"
 ```
 
 ## Example Workflows
@@ -398,7 +398,7 @@ set -g @harpoon-fzf-preview-position "top:60%"
 
 - Session Editor: `/tmp/tmux_sessions_*`
 - Window Editor: `/tmp/tmux_windows_*`
-- Harpoon bookmarks: `~/.tmux-harpoon-list`
+- Bookmarks: `~/.tmux-bookmarks-list`
 
 **Check configuration:**
 
@@ -422,8 +422,8 @@ set -g @plugin 'VenkatRaman3103/Omnimux'
 
 # Custom key bindings
 set -g @omnimux-key "o"                      # Main interface
-set -g @omnimux-harpoon-key "t"              # Harpoon
-set -g @omnimux-harpoon-add-key "T"          # Add bookmark
+set -g @omnimux-bookmarks-key "t"            # Bookmarks
+set -g @omnimux-bookmarks-add-key "T"        # Add bookmark
 set -g @omnimux-edit-session-key "E"         # Session editor
 set -g @omnimux-edit-windows-key "W"         # Window editor
 set -g @omnimux-utility-session-key "s"      # Session utility
@@ -437,12 +437,12 @@ set -g @omnimux-window-height "85%"
 # Colors
 set -g @omnimux-active-bg "#2d3748"
 set -g @omnimux-active-fg "#e2e8f0"
-set -g @harpoon-active-color "#ff6b6b"
-set -g @harpoon-session-color "#4ecdc4"
+set -g @bookmarks-active-color "#ff6b6b"
+set -g @bookmarks-session-color "#4ecdc4"
 
 # Features
 set -g @omnimux-preview-enabled "true"
-set -g @harpoon-preview-enabled "true"
+set -g @bookmarks-preview-enabled "true"
 set -g @omnimux-editor "nvim"
 ```
 
@@ -451,7 +451,7 @@ set -g @omnimux-editor "nvim"
 Contributions welcome! The project has these main parts:
 
 - **Core session management** (`omnimux_main.sh`)
-- **Harpoon bookmarks** (`harpoon_*.sh`)
+- **Bookmarks** (`bookmarks_*.sh`)
 - **Editors** (`editor_*.sh`)
 - **Utilities** (`utility/`)
 

@@ -1,20 +1,20 @@
 #!/bin/bash
 
-HARPOON_FILE="$HOME/.tmux-harpoon-list"
-TEMP_FILE="/tmp/tmux_harpoon_$$"
-ORIGINAL_FILE="/tmp/tmux_harpoon_original_$$"
+bookmars_FILE="$HOME/.tmux-bookmars-list"
+TEMP_FILE="/tmp/tmux_bookmars_$$"
+ORIGINAL_FILE="/tmp/tmux_bookmars_original_$$"
 CURRENT_SESSION=$(tmux display-message -p '#S')
 CURRENT_WINDOW=$(tmux display-message -p '#I')
 CURRENT_TARGET="${CURRENT_SESSION}:${CURRENT_WINDOW}"
 
-create_harpoon_file() {
-    if [ ! -f "$HARPOON_FILE" ]; then
-        touch "$HARPOON_FILE"
+create_bookmars_file() {
+    if [ ! -f "$bookmars_FILE" ]; then
+        touch "$bookmars_FILE"
     fi
 }
 
 prepare_editor_file() {
-    create_harpoon_file
+    create_bookmars_file
     
     local line_number=1
     while IFS= read -r line; do
@@ -39,7 +39,7 @@ prepare_editor_file() {
             fi
             line_number=$((line_number + 1))
         fi
-    done < "$HARPOON_FILE"
+    done < "$bookmars_FILE"
     
     cp "$TEMP_FILE" "$ORIGINAL_FILE"
 }
@@ -47,7 +47,7 @@ prepare_editor_file() {
 show_editor_help() {
     cat << 'EOF'
 # ╭─────────────────────────────────────────────────────────────────────────────╮
-# │                      Harpoon: DELETE ONLY MODE                             │
+# │                      bookmars: DELETE ONLY MODE                             │
 # ╰─────────────────────────────────────────────────────────────────────────────╯
 # ┌─ USAGE ─────────────────────────────────────────────────────────────────────┐
 # │ • DELETE entry:          Delete the entire line (dd in vim)                 │
@@ -57,7 +57,7 @@ show_editor_help() {
 # │          Only deletion and reordering is allowed                            │
 # └─────────────────────────────────────────────────────────────────────────────┘
 # ┌─ CURRENT ENTRIES ───────────────────────────────────────────────────────────┐
-# │ Delete any line below to remove it from your harpoon list                   │
+# │ Delete any line below to remove it from your bookmars list                   │
 # │ The * marker indicates your current session/window                          │
 # └─────────────────────────────────────────────────────────────────────────────┘
 EOF
@@ -130,21 +130,21 @@ validate_deletion_only() {
     return 0
 }
 
-apply_harpoon_changes() {
-    local temp_harpoon_file=$(mktemp)
+apply_bookmars_changes() {
+    local temp_bookmars_file=$(mktemp)
     
     while IFS=':' read -r index session window rest; do
         if [[ "$index" =~ ^[0-9]+$ ]] && [ -n "$session" ] && [ -n "$window" ]; then
             window=$(echo "$window" | awk '{print $1}')
             local new_target="$session:$window"
-            echo "$new_target" >> "$temp_harpoon_file"
+            echo "$new_target" >> "$temp_bookmars_file"
         fi
     done < "$TEMP_FILE"
     
-    mv "$temp_harpoon_file" "$HARPOON_FILE"
+    mv "$temp_bookmars_file" "$bookmars_FILE"
 }
 
-edit_harpoons() {
+edit_bookmarss() {
     if ! tmux info >/dev/null 2>&1; then
         echo "Error: tmux server is not running"
         exit 1
@@ -153,8 +153,8 @@ edit_harpoons() {
     prepare_editor_file
     
     if [ ! -s "$TEMP_FILE" ]; then
-        echo "No harpoon entries found. Cannot use delete-only mode with empty list."
-        echo "Use the regular harpoon editor to create entries first."
+        echo "No bookmars entries found. Cannot use delete-only mode with empty list."
+        echo "Use the regular bookmars editor to create entries first."
         exit 1
     fi
     
@@ -175,13 +175,13 @@ edit_harpoons() {
         mv "${TEMP_FILE}.clean" "$TEMP_FILE"
         
         if validate_deletion_only; then
-            apply_harpoon_changes
+            apply_bookmars_changes
             
-            echo "Harpoon entries updated successfully!"
+            echo "bookmars entries updated successfully!"
             
             echo ""
-            echo "Current harpoon entries:"
-            if [ -s "$HARPOON_FILE" ]; then
+            echo "Current bookmars entries:"
+            if [ -s "$bookmars_FILE" ]; then
                 local count=1
                 while IFS= read -r line; do
                     if [ -n "$line" ]; then
@@ -204,7 +204,7 @@ edit_harpoons() {
                         fi
                         count=$((count + 1))
                     fi
-                done < "$HARPOON_FILE"
+                done < "$bookmars_FILE"
             else
                 echo "No entries"
             fi
@@ -218,10 +218,10 @@ edit_harpoons() {
 
 show_usage() {
     cat << 'EOF'
-Usage: tmux-harpoon-editor-delete-only.sh [OPTION]
+Usage: tmux-bookmars-editor-delete-only.sh [OPTION]
 
 Description:
-  DELETE-ONLY mode for tmux harpoon entries.
+  DELETE-ONLY mode for tmux bookmars entries.
   Allows only deletion and reordering of existing entries.
   Creating new entries or modifying existing ones is disabled.
   
@@ -249,7 +249,7 @@ Options:
   -h, --help       Show this help message
   
 Tmux keybinding (add to your tmux.conf):
-  bind-key H run-shell 'tmux-harpoon-editor-delete-only.sh'
+  bind-key H run-shell 'tmux-bookmars-editor-delete-only.sh'
 
 Dependencies:
   - tmux
@@ -268,6 +268,6 @@ case "${1:-}" in
             exit 1
         fi
         
-        edit_harpoons
+        edit_bookmarss
         ;;
 esac

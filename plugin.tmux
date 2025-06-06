@@ -17,8 +17,8 @@ default_utility_window_height="50%"
 default_border_fg="#0c0c0c"
 default_border_bg="#0c0c0c"
 
-default_harpoon_key="H"
-default_harpoon_add_key="a"
+default_bookmarks_key="H"
+default_bookmarks_add_key="a"
 
 default_edit_session_key="y"
 default_edit_windows_key="Y"
@@ -46,11 +46,11 @@ border_fg=${border_fg:-$default_border_fg}
 border_bg=$(tmux show-option -gqv @omnimux-border-bg)
 border_bg=${border_bg:-$default_border_bg}
 
-harpoon_key=$(tmux show-option -gqv @omnimux-harpoon-key)
-harpoon_key=${harpoon_key:-$default_harpoon_key}
+bookmarks_key=$(tmux show-option -gqv @omnimux-bookmarks-key)
+bookmarks_key=${bookmarks_key:-$default_bookmarks_key}
 
-harpoon_add_key=$(tmux show-option -gqv @omnimux-harpoon-add-key)
-harpoon_add_key=${harpoon_add_key:-$default_harpoon_add_key}
+bookmarks_add_key=$(tmux show-option -gqv @omnimux-bookmarks-add-key)
+bookmarks_add_key=${bookmarks_add_key:-$default_bookmarks_add_key}
 
 edit_session_key=$(tmux show-option -gqv @omnimux-edit-session-key)
 edit_session_key=${edit_session_key:-$default_edit_session_key}
@@ -97,16 +97,16 @@ esac
 
 case "$display_mode" in
     "popup")
-        tmux bind-key "$harpoon_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/harpoon_interface.sh"
-        tmux bind-key "$harpoon_add_key" run-shell "$CURRENT_DIR/scripts/harpoon_add.sh"
+        tmux bind-key "$bookmarks_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/bookmarks_interface.sh"
+        tmux bind-key "$bookmarks_add_key" run-shell "$CURRENT_DIR/scripts/bookmarks_add.sh"
         ;;
     "window")
-        tmux bind-key "$harpoon_key" new-window "$CURRENT_DIR/scripts/harpoon_interface.sh"
-        tmux bind-key "$harpoon_add_key" run-shell "$CURRENT_DIR/scripts/harpoon_add.sh"
+        tmux bind-key "$bookmarks_key" new-window "$CURRENT_DIR/scripts/bookmarks_interface.sh"
+        tmux bind-key "$bookmarks_add_key" run-shell "$CURRENT_DIR/scripts/bookmarks_add.sh"
         ;;
     *)
-        tmux bind-key "$harpoon_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/harpoon_interface.sh"
-        tmux bind-key "$harpoon_add_key" run-shell "$CURRENT_DIR/scripts/harpoon_add.sh"
+        tmux bind-key "$bookmarks_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/bookmarks_interface.sh"
+        tmux bind-key "$bookmarks_add_key" run-shell "$CURRENT_DIR/scripts/bookmarks_add.sh"
         ;;
 esac
 

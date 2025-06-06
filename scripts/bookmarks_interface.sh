@@ -1,6 +1,6 @@
 #!/bin/bash
 
-HARPOON_FILE="$HOME/.tmux-harpoon-list"
+bookmars_FILE="$HOME/.tmux-bookmars-list"
 CURRENT_SESSION=$(tmux display-message -p '#S')
 CURRENT_WINDOW=$(tmux display-message -p '#I')
 CURRENT_TARGET="${CURRENT_SESSION}:${CURRENT_WINDOW}"
@@ -23,39 +23,39 @@ hex_to_ansi() {
     printf "\033[38;2;%d;%d;%dm" "$r" "$g" "$b"
 }
 
-ACTIVE_COLOR_HEX=$(get_tmux_option "@harpoon-active-color" "#87ceeb")
+ACTIVE_COLOR_HEX=$(get_tmux_option "@bookmars-active-color" "#87ceeb")
 ACTIVE_COLOR=$(hex_to_ansi "$ACTIVE_COLOR_HEX")
 
-SESSION_COLOR_HEX=$(get_tmux_option "@harpoon-session-color" "#ffffff")
+SESSION_COLOR_HEX=$(get_tmux_option "@bookmars-session-color" "#ffffff")
 SESSION_COLOR=$(hex_to_ansi "$SESSION_COLOR_HEX")
 
-WINDOW_COLOR_HEX=$(get_tmux_option "@harpoon-window-color" "#90ee90")
+WINDOW_COLOR_HEX=$(get_tmux_option "@bookmars-window-color" "#90ee90")
 WINDOW_COLOR=$(hex_to_ansi "$WINDOW_COLOR_HEX")
 
-MARK_COLOR_HEX=$(get_tmux_option "@harpoon-mark-color" "#777777")
+MARK_COLOR_HEX=$(get_tmux_option "@bookmars-mark-color" "#777777")
 MARK_COLOR=$(hex_to_ansi "$MARK_COLOR_HEX")
 
 NORMAL="\033[0m"
 
-FZF_HEIGHT=$(get_tmux_option "@harpoon-fzf-height" "100%")
-FZF_BORDER=$(get_tmux_option "@harpoon-fzf-border" "none")
-FZF_LAYOUT=$(get_tmux_option "@harpoon-fzf-layout" "no-reverse")
-FZF_PREVIEW_POSITION=$(get_tmux_option "@harpoon-fzf-preview-position" "top:60%")
-FZF_PROMPT=$(get_tmux_option "@harpoon-fzf-prompt" "Harpoon > ")
-FZF_POINTER=$(get_tmux_option "@harpoon-fzf-pointer" "▶")
+FZF_HEIGHT=$(get_tmux_option "@bookmars-fzf-height" "100%")
+FZF_BORDER=$(get_tmux_option "@bookmars-fzf-border" "none")
+FZF_LAYOUT=$(get_tmux_option "@bookmars-fzf-layout" "no-reverse")
+FZF_PREVIEW_POSITION=$(get_tmux_option "@bookmars-fzf-preview-position" "top:60%")
+FZF_PROMPT=$(get_tmux_option "@bookmars-fzf-prompt" "bookmars > ")
+FZF_POINTER=$(get_tmux_option "@bookmars-fzf-pointer" "▶")
 
-PREVIEW_ENABLED=$(get_tmux_option "@harpoon-preview-enabled" "true")
-SHOW_PREVIEW_LINES=$(get_tmux_option "@harpoon-show-preview-lines" "15")
-SHOW_PROCESS_COUNT=$(get_tmux_option "@harpoon-show-process-count" "3")
+PREVIEW_ENABLED=$(get_tmux_option "@bookmars-preview-enabled" "true")
+SHOW_PREVIEW_LINES=$(get_tmux_option "@bookmars-show-preview-lines" "15")
+SHOW_PROCESS_COUNT=$(get_tmux_option "@bookmars-show-process-count" "3")
 
-create_harpoon_file() {
-    if [ ! -f "$HARPOON_FILE" ]; then
-        touch "$HARPOON_FILE"
+create_bookmars_file() {
+    if [ ! -f "$bookmars_FILE" ]; then
+        touch "$bookmars_FILE"
     fi
 }
 
-get_harpoon_entries() {
-    create_harpoon_file
+get_bookmars_entries() {
+    create_bookmars_file
     
     local temp_file=$(mktemp)
     local line_number=1
@@ -82,16 +82,16 @@ get_harpoon_entries() {
             fi
             line_number=$((line_number + 1))
         fi
-    done < "$HARPOON_FILE"
+    done < "$bookmars_FILE"
     
     cat "$temp_file"
     rm -f "$temp_file"
 }
 
-switch_to_harpoon() {
+switch_to_bookmars() {
     local selection="$1"
     local line_number=$(echo "$selection" | awk '{print $1}' | sed 's/\.//')
-    local target=$(sed -n "${line_number}p" "$HARPOON_FILE")
+    local target=$(sed -n "${line_number}p" "$bookmars_FILE")
     
     if [ -n "$target" ]; then
         local session=$(echo "$target" | cut -d':' -f1)
@@ -101,7 +101,7 @@ switch_to_harpoon() {
             if tmux list-windows -t "$session" -F "#I" 2>/dev/null | grep -q "^${window}$"; then
                 tmux switch-client -t "$session"
                 tmux select-window -t "$session:$window"
-                tmux display-message "Switched to harpoon: $session:$window"
+                tmux display-message "Switched to bookmars: $session:$window"
             else
                 tmux display-message "Error: Window $window not found in session $session"
             fi
@@ -111,45 +111,45 @@ switch_to_harpoon() {
     fi
 }
 
-remove_harpoon_entry() {
+remove_bookmars_entry() {
     local selection="$1"
     local line_number=$(echo "$selection" | awk '{print $1}' | sed 's/\.//')
-    local target=$(sed -n "${line_number}p" "$HARPOON_FILE")
+    local target=$(sed -n "${line_number}p" "$bookmars_FILE")
     
     if [ -n "$target" ]; then
         local temp_file=$(mktemp)
-        sed "${line_number}d" "$HARPOON_FILE" > "$temp_file"
-        mv "$temp_file" "$HARPOON_FILE"
+        sed "${line_number}d" "$bookmars_FILE" > "$temp_file"
+        mv "$temp_file" "$bookmars_FILE"
         
-        tmux display-message "Removed harpoon entry: $target"
+        tmux display-message "Removed bookmars entry: $target"
         main
     fi
 }
 
-add_current_to_harpoon() {
-    create_harpoon_file
+add_current_to_bookmars() {
+    create_bookmars_file
     
-    if grep -Fxq "$CURRENT_TARGET" "$HARPOON_FILE" 2>/dev/null; then
-        tmux display-message "Current window already in harpoon list"
+    if grep -Fxq "$CURRENT_TARGET" "$bookmars_FILE" 2>/dev/null; then
+        tmux display-message "Current window already in bookmars list"
     else
-        echo "$CURRENT_TARGET" >> "$HARPOON_FILE"
-        tmux display-message "Added to harpoon: $CURRENT_TARGET"
+        echo "$CURRENT_TARGET" >> "$bookmars_FILE"
+        tmux display-message "Added to bookmars: $CURRENT_TARGET"
     fi
     main
 }
 
-clear_all_harpoons() {
-    local confirmation=$(echo -e "y\nn" | fzf --header="Clear all harpoon entries? Select 'y' to confirm" --reverse --border="$FZF_BORDER")
+clear_all_bookmarss() {
+    local confirmation=$(echo -e "y\nn" | fzf --header="Clear all bookmars entries? Select 'y' to confirm" --reverse --border="$FZF_BORDER")
     
     if [ "$confirmation" = "y" ]; then
-        > "$HARPOON_FILE"
-        tmux display-message "Cleared all harpoon entries"
+        > "$bookmars_FILE"
+        tmux display-message "Cleared all bookmars entries"
     fi
     main
 }
 
 clean_invalid_entries() {
-    create_harpoon_file
+    create_bookmars_file
     
     local temp_file=$(mktemp)
     local cleaned_count=0
@@ -169,12 +169,12 @@ clean_invalid_entries() {
                 cleaned_count=$((cleaned_count + 1))
             fi
         fi
-    done < "$HARPOON_FILE"
+    done < "$bookmars_FILE"
     
-    mv "$temp_file" "$HARPOON_FILE"
+    mv "$temp_file" "$bookmars_FILE"
     
     if [ "$cleaned_count" -gt 0 ]; then
-        tmux display-message "Cleaned $cleaned_count invalid harpoon entries"
+        tmux display-message "Cleaned $cleaned_count invalid bookmars entries"
     else
         tmux display-message "No invalid entries found"
     fi
@@ -182,20 +182,20 @@ clean_invalid_entries() {
 }
 
 create_preview_script() {
-    local preview_script=$(mktemp -t "harpoon_preview_XXXXXX.sh")
+    local preview_script=$(mktemp -t "bookmars_preview_XXXXXX.sh")
     
     cat > "$preview_script" << PREVIEW_EOF
 #!/bin/bash
 
 selection="\$1"
 line_number=\$(echo "\$selection" | awk '{print \$1}' | sed 's/\\.//')
-target=\$(sed -n "\${line_number}p" "$HARPOON_FILE")
+target=\$(sed -n "\${line_number}p" "$bookmars_FILE")
 
 if [ -n "\$target" ]; then
     session=\$(echo "\$target" | cut -d':' -f1)
     window=\$(echo "\$target" | cut -d':' -f2)
     
-    printf "\033[1;36mHarpoon Entry:\033[0m \033[1;33m%s\033[0m\n\n" "\$target"
+    printf "\033[1;36mbookmars Entry:\033[0m \033[1;33m%s\033[0m\n\n" "\$target"
     
     if tmux has-session -t "\$session" 2>/dev/null; then
         if tmux list-windows -t "\$session" -F "#I" 2>/dev/null | grep -q "^\${window}\$"; then
@@ -237,44 +237,44 @@ PREVIEW_EOF
 }
 
 show_help() {
-    local help_text="Enter       Jump to selected harpoon entry
-ctrl-d      Remove selected harpoon entry
-ctrl-a      Add current window to harpoon
-ctrl-r      Clear all harpoon entries
+    local help_text="Enter       Jump to selected bookmars entry
+ctrl-d      Remove selected bookmars entry
+ctrl-a      Add current window to bookmars
+ctrl-r      Clear all bookmars entries
 ctrl-x      Clean invalid entries (remove non-existent sessions/windows)
 ctrl-p      Toggle preview mode (currently: $PREVIEW_ENABLED)
 ?           Show this help menu
 Escape      Exit"
 
-    echo "$help_text" | fzf --reverse --header "Harpoon Keyboard Shortcuts" --prompt "Press Escape to return" --border="$FZF_BORDER" --height="$FZF_HEIGHT"
+    echo "$help_text" | fzf --reverse --header "bookmars Keyboard Shortcuts" --prompt "Press Escape to return" --border="$FZF_BORDER" --height="$FZF_HEIGHT"
     main
 }
 
 toggle_preview() {
     if [ "$PREVIEW_ENABLED" = "true" ]; then
-        tmux set-option -g "@harpoon-preview-enabled" "false"
-        tmux display-message "Harpoon preview disabled"
+        tmux set-option -g "@bookmars-preview-enabled" "false"
+        tmux display-message "bookmars preview disabled"
     else
-        tmux set-option -g "@harpoon-preview-enabled" "true"
-        tmux display-message "Harpoon preview enabled"
+        tmux set-option -g "@bookmars-preview-enabled" "true"
+        tmux display-message "bookmars preview enabled"
     fi
-    PREVIEW_ENABLED=$(get_tmux_option "@harpoon-preview-enabled" "true")
+    PREVIEW_ENABLED=$(get_tmux_option "@bookmars-preview-enabled" "true")
     main
 }
 
 main() {
-    local harpoon_entries=$(get_harpoon_entries)
+    local bookmars_entries=$(get_bookmars_entries)
     
-    if [ -z "$harpoon_entries" ]; then
-        local empty_options="Add current window to harpoon
+    if [ -z "$bookmars_entries" ]; then
+        local empty_options="Add current window to bookmars
 Show help
 Exit"
         
-        local selection=$(echo "$empty_options" | fzf --header="No harpoon entries found" --prompt="$FZF_PROMPT" --reverse --border="$FZF_BORDER" --height="$FZF_HEIGHT")
+        local selection=$(echo "$empty_options" | fzf --header="No bookmars entries found" --prompt="$FZF_PROMPT" --reverse --border="$FZF_BORDER" --height="$FZF_HEIGHT")
         
         case "$selection" in
-            "Add current window to harpoon")
-                add_current_to_harpoon
+            "Add current window to bookmars")
+                add_current_to_bookmars
                 ;;
             "Show help")
                 show_help
@@ -304,7 +304,7 @@ Exit"
         fzf_cmd="$fzf_cmd --preview=\"$preview_script {}\" --preview-window=\"$FZF_PREVIEW_POSITION\""
     fi
     
-    local result=$(echo "$harpoon_entries" | eval "$fzf_cmd")
+    local result=$(echo "$bookmars_entries" | eval "$fzf_cmd")
     
     local key=$(echo "$result" | head -1)
     local selection=$(echo "$result" | tail -1)
@@ -316,13 +316,13 @@ Exit"
     
     case "$key" in
         "ctrl-d")
-            remove_harpoon_entry "$selection"
+            remove_bookmars_entry "$selection"
             ;;
         "ctrl-a")
-            add_current_to_harpoon
+            add_current_to_bookmars
             ;;
         "ctrl-r")
-            clear_all_harpoons
+            clear_all_bookmarss
             ;;
         "ctrl-x")
             clean_invalid_entries
@@ -334,7 +334,7 @@ Exit"
             show_help
             ;;
         *)
-            switch_to_harpoon "$selection"
+            switch_to_bookmars "$selection"
             ;;
     esac
     
