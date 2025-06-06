@@ -77,18 +77,18 @@ handle_deletions() {
 mark_current_session() {
     if [ -n "$TMUX" ]; then
         local current_session=$(tmux display-message -p '#S')
-        echo "Debug: Current session is '$current_session'" >&2
+        # echo "Debug: Current session is '$current_session'" >&2
         
         awk -v current="$current_session" -F':' '
             $2 == current { 
                 print $1 ":" $2 " *"
-                print "Debug: Marked session " $2 > "/dev/stderr"
+                # print "Debug: Marked session " $2 > "/dev/stderr"
                 next 
             }
             { print }
         ' "$TEMP_FILE" > "${TEMP_FILE}.tmp" && mv "${TEMP_FILE}.tmp" "$TEMP_FILE"
         
-        echo "Debug: Sessions after marking:" >&2
+        # echo "Debug: Sessions after marking:" >&2
         cat "$TEMP_FILE" >&2
     fi
 }
@@ -208,8 +208,8 @@ Tmux keybinding (add to your tmux.conf):
   bind-key C-s run-shell 'tmux-session-manager.sh -a'
 
 Examples:
-  ./tmux-session-manager.sh          # Interactive session management
-  ./tmux-session-manager.sh -a       # Quick session selection
+  ./tmux-session-manager.sh
+  ./tmux-session-manager.sh -a
 
 EOF
 }
