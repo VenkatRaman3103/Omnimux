@@ -5,6 +5,8 @@ default_key_binding="J"
 default_display_mode="popup"
 default_window_width="100%"
 default_window_height="100%"
+default_editor_window_width="50%"
+default_editor_window_height="50%"
 default_border_fg="#0c0c0c"
 default_border_bg="#0c0c0c"
 
@@ -43,6 +45,12 @@ edit_session_key=${edit_session_key:-$default_edit_session_key}
 
 edit_windows_key=$(tmux show-option -gqv @omnimux-edit-windows-key)
 edit_windows_key=${edit_windows_key:-$default_edit_windows_key}  
+
+editor_window_width=$(tmux show-option -gqv @omnimux-editor-window-width)
+editor_window_width=${editor_window_width:-$default_editor_window_width}
+
+editor_window_height=$(tmux show-option -gqv @omnimux-editor-window-height)
+editor_window_height=${editor_window_height:-$default_editor_window_height}
 
 case "$display_mode" in
     "popup")
@@ -85,12 +93,12 @@ esac
 
 case "$display_mode" in
     "popup")
-        tmux bind-key "$edit_windows_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/editor_windows.sh"
+        tmux bind-key "$edit_windows_key" display-popup -E -w "$editor_window_width" -h "$editor_window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/editor_windows.sh"
         ;;
     "window")
         tmux bind-key "$edit_windows_key" new-window "$CURRENT_DIR/scripts/editor_windows.sh"
         ;;
     *)
-        tmux bind-key "$edit_windows_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/editor_windows.sh"
+        tmux bind-key "$edit_windows_key" display-popup -E -w "$editor_window_width" -h "$editor_window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/editor_windows.sh"
         ;;
 esac
