@@ -46,7 +46,6 @@ show_help() {
 # ╭─────────────────────────────────────────────────────────────────────────────╮
 # │                           Omnimux: Mange Sessions                           │
 # ╰─────────────────────────────────────────────────────────────────────────────╯
-# 
 # ┌─ USAGE ─────────────────────────────────────────────────────────────────────┐
 # │ • CREATE new session:    Add line "99:sessionName"                          │
 # │ • RENAME session 2:      Change "2:oldName" to "2:newName"                  │
@@ -102,12 +101,10 @@ handle_session_switching() {
     local marked_session=""
     local original_current=""
     
-    # Get the original current session
     if [ -n "$TMUX" ]; then
         original_current=$(tmux display-message -p '#S')
     fi
     
-    # Find which session has the * marker in the edited file
     while IFS=':' read -r index session_line; do
         if [[ "$session_line" == *" *" ]]; then
             marked_session="${session_line% *}"
@@ -115,7 +112,6 @@ handle_session_switching() {
         fi
     done < "$TEMP_FILE"
     
-    # If we found a marked session and we're in tmux, switch to it
     if [ -n "$marked_session" ] && [ -n "$TMUX" ]; then
         if [ "$marked_session" != "$original_current" ]; then
             echo "Switching to session: $marked_session"
@@ -168,7 +164,6 @@ manage_sessions() {
         grep -v '^#' "$TEMP_FILE" | grep -v '^$' > "${TEMP_FILE}.clean"
         mv "${TEMP_FILE}.clean" "$TEMP_FILE"
         
-        # Handle session switching first (before cleaning session names)
         handle_session_switching
         
         clean_session_names
