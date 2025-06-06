@@ -5,8 +5,10 @@ default_key_binding="J"
 default_display_mode="popup"
 default_window_width="100%"
 default_window_height="100%"
+
 default_editor_window_width="50%"
 default_editor_window_height="50%"
+
 default_border_fg="#0c0c0c"
 default_border_bg="#0c0c0c"
 
@@ -81,13 +83,13 @@ esac
 
 case "$display_mode" in
     "popup")
-        tmux bind-key "$edit_session_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/editor_sessions.sh"
+        tmux bind-key "$edit_session_key" display-popup -E -w "$editor_window_width" -h "$editor_window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/editor_sessions.sh"
         ;;
     "window")
         tmux bind-key "$edit_session_key" new-window "$CURRENT_DIR/scripts/editor_sessions.sh"
         ;;
     *)
-        tmux bind-key "$edit_session_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/editor_sessions.sh"
+        tmux bind-key "$edit_session_key" display-popup -E -w "$editor_window_width" -h "$editor_window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/editor_sessions.sh"
         ;;
 esac
 
