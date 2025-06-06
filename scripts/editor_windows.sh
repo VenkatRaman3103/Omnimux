@@ -113,13 +113,9 @@ manage_windows() {
     } > "${TEMP_FILE}.tmp" && mv "${TEMP_FILE}.tmp" "$TEMP_FILE"
     
     nvim \
-        -c "set number" \
-        -c "set cursorline" \
-        -c "syntax on" \
-        -c "hi Comment ctermfg=darkgray" \
-        -c "hi Special ctermfg=yellow" \
-        -c "match Comment /^#.*/" \
-        -c "2match Special /\*/" \
+        -c "set laststatus=0 noshowcmd noshowmode noruler signcolumn=no foldcolumn=0 nocursorline nocursorcolumn" \
+        -c "syntax off | hi Comment ctermfg=darkgray | hi Special ctermfg=yellow" \
+        -c "match Comment /^#.*/ | 2match Special /\*/" \
         -c "normal G" \
         "$TEMP_FILE"
     

@@ -77,19 +77,14 @@ handle_deletions() {
 mark_current_session() {
     if [ -n "$TMUX" ]; then
         local current_session=$(tmux display-message -p '#S')
-        # echo "Debug: Current session is '$current_session'" >&2
         
         awk -v current="$current_session" -F':' '
             $2 == current { 
                 print $1 ":" $2 " *"
-                # print "Debug: Marked session " $2 > "/dev/stderr"
                 next 
             }
             { print }
         ' "$TEMP_FILE" > "${TEMP_FILE}.tmp" && mv "${TEMP_FILE}.tmp" "$TEMP_FILE"
-        
-        # echo "Debug: Sessions after marking:" >&2
-        cat "$TEMP_FILE" >&2
     fi
 }
 
@@ -150,13 +145,9 @@ manage_sessions() {
     } > "${TEMP_FILE}.tmp" && mv "${TEMP_FILE}.tmp" "$TEMP_FILE"
     
     nvim \
-        -c "set number" \
-        -c "set cursorline" \
-        -c "syntax off" \
-        -c "hi Comment ctermfg=darkgray" \
-        -c "hi Special ctermfg=yellow" \
-        -c "match Comment /^#.*/" \
-        -c "2match Special /\*/" \
+        -c "set nonumber norelativenumber laststatus=0 noshowcmd noshowmode noruler signcolumn=no foldcolumn=0 nocursorline nocursorcolumn" \
+        -c "syntax off | hi Comment ctermfg=darkgray | hi Special ctermfg=yellow" \
+        -c "match Comment /^#.*/ | 2match Special /\*/" \
         -c "normal G" \
         "$TEMP_FILE"
     
