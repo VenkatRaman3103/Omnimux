@@ -70,16 +70,55 @@ handle_deletions() {
         current_window=$(tmux display-message -p '#I')
     fi
     
+    local -a windows_to_delete=()
+    local -a windows_to_delete_names=()
+    
     while IFS=':' read -r old_index window_name; do
         if ! grep -q "^$old_index:" "$TEMP_FILE"; then
             if [[ "$old_index" == "$current_window" ]]; then
                 echo "WARNING: Cannot kill current window '$old_index' - skipping"
             else
-                echo "Killing window: $old_index ($window_name)"
-                tmux kill-window -t "$old_index" 2>/dev/null || true
+                windows_to_delete+=("$old_index")
+                windows_to_delete_names+=("$window_name")
             fi
         fi
     done < "$ORIGINAL_FILE"
+    
+    if [ ${#windows_to_delete[@]} -gt 0 ]; then
+        local -a sorted_indices=()
+        local -a sorted_names=()
+        
+        for i in "${!windows_to_delete[@]}"; do
+            sorted_indices+=("${windows_to_delete[$i]}")
+            sorted_names+=("${windows_to_delete_names[$i]}")
+        done
+        
+        local n=${#sorted_indices[@]}
+        for ((i=0; i<n-1; i++)); do
+            for ((j=0; j<n-i-1; j++)); do
+                if [ "${sorted_indices[$j]}" -lt "${sorted_indices[$((j+1))]}" ]; then
+                    local temp_idx="${sorted_indices[$j]}"
+                    sorted_indices[$j]="${sorted_indices[$((j+1))]}"
+                    sorted_indices[$((j+1))]="$temp_idx"
+                    
+                    local temp_name="${sorted_names[$j]}"
+                    sorted_names[$j]="${sorted_names[$((j+1))]}"
+                    sorted_names[$((j+1))]="$temp_name"
+                fi
+            done
+        done
+        
+        for i in "${!sorted_indices[@]}"; do
+            local window_index="${sorted_indices[$i]}"
+            local window_name="${sorted_names[$i]}"
+            echo "Killing window: $window_index ($window_name)"
+            tmux kill-window -t "$window_index" 2>/dev/null || true
+            
+            sleep 0.1
+        done
+        
+        echo "Deleted ${#windows_to_delete[@]} window(s)"
+    fi
 }
 
 manage_windows() {
