@@ -1,13 +1,18 @@
 #!/usr/bin/env bash
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# defaults
 default_key_binding="J"
 default_display_mode="popup"
+default_utility_mode="verbose"
 default_window_width="100%"
 default_window_height="100%"
 
 default_editor_window_width="50%"
 default_editor_window_height="50%"
+
+default_utility_window_width="50%"
+default_utility_window_height="50%"
 
 default_border_fg="#0c0c0c"
 default_border_bg="#0c0c0c"
@@ -18,6 +23,11 @@ default_harpoon_add_key="a"
 default_edit_session_key="y"
 default_edit_windows_key="Y"
 
+default_utlity_session_key="j"
+default_utlity_windows_key="k"
+default_utlity_tmuxifier_key="h"
+
+# mapping to keybindings
 key_binding=$(tmux show-option -gqv @omnimux-key)
 key_binding=${key_binding:-$default_key_binding}
 
@@ -53,6 +63,25 @@ editor_window_width=${editor_window_width:-$default_editor_window_width}
 
 editor_window_height=$(tmux show-option -gqv @omnimux-editor-window-height)
 editor_window_height=${editor_window_height:-$default_editor_window_height}
+
+# utility
+utlity_session_key=$(tmux show-option -gqv @omnimux-utility-session-key)
+utlity_session_key=${utlity_session_key:-$default_utlity_session_key}  
+
+utlity_window_key=$(tmux show-option -gqv @omnimux-utility-windows-key)
+utlity_window_key=${utlity_window_key:-$default_utlity_windows_key}
+
+utlity_tmuxfier_key=$(tmux show-option -gqv @omnimux-utility-tmuxifier-key)
+utlity_tmuxfier_key=${utlity_tmuxfier_key:-$default_utlity_tmuxifier_key}
+
+utility_mode=$(tmux show-option -gqv @omnimux-utility--mode)
+utility_mode=${utility_mode:-$default_utility_mode}
+
+utility_window_height=$(tmux show-option -gqv @omnimux-utility-window-height)
+utility_window_height=${utility_window_height:-$default_utility_window_height}
+
+utility_window_width=$(tmux show-option -gqv @omnimux-utility-window-width)
+utility_window_width=${utility_window_width:-$default_utility_window_width}
 
 case "$display_mode" in
     "popup")
@@ -102,5 +131,12 @@ case "$display_mode" in
         ;;
     *)
         tmux bind-key "$edit_windows_key" display-popup -E -w "$editor_window_width" -h "$editor_window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/editor_windows.sh"
+        ;;
+esac
+
+# utility
+case "$utility_mode" in
+    "verbose")
+        tmux bind-key "$utlity_session_key" display-popup -E -w "$utility_window_width" -h "$utility_window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/utility/verbose/sessions.sh"
         ;;
 esac
