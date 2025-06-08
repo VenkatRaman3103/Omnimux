@@ -472,3 +472,8 @@ Contributions welcome! The project has these main parts:
 - **Utilities** (`utility/`)
 
 Report issues or submit pull requests on GitHub.
+
+## License
+
+Omnimux is licensed under the GNU General Public License v3.0.  
+See the [LICENSE](./LICENSE) file for details.
