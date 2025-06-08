@@ -4,15 +4,27 @@ A tmux session manager that combines tmux, tmuxifier, zoxide, and fzf into one i
 
 ![Screenshot 2025-06-01 235635](https://github.com/user-attachments/assets/556b7bc4-a477-4d9b-9185-2e7fa2720bd6)
 
+## Sessions
+
 https://github.com/user-attachments/assets/4860255b-97df-47f9-8e63-8fc5d29e041a
+
+## Windows
 
 https://github.com/user-attachments/assets/55229664-67e4-4811-b981-6fd23a4e4e6d
 
+## Bookmarks
+
 https://github.com/user-attachments/assets/c90494d2-de23-4484-bedc-20d458d3386e
+
+## Sessions Editor
 
 https://github.com/user-attachments/assets/843c2dba-7de9-4a99-ac90-bb634962ff3e
 
+## Windows Editor
+
 https://github.com/user-attachments/assets/1dacec5b-7efb-41ba-a575-fbb2bbf7dac3
+
+## Utlities: session and windows
 
 https://github.com/user-attachments/assets/f2f54b61-1a56-4c24-8c91-2d7a632871a7
 
