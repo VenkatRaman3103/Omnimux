@@ -43,6 +43,8 @@ default_float_shorter_key="M-Down"
 default_float_reset_key="M-r"
 default_float_embed_key="M-e"
 
+default_hide_status_key="u"
+
 key_binding=$(tmux show-option -gqv @omnimux-key)
 key_binding=${key_binding:-$default_key_binding}
 
@@ -139,6 +141,9 @@ float_reset_key=${float_reset_key:-$default_float_reset_key}
 float_embed_key=$(tmux show-option -gqv @omnimux-float-embed-key)
 float_embed_key=${float_embed_key:-$default_float_embed_key}
 
+hide_status_key=$(tmux show-option -gqv @omnimux-float-embed-key)
+hide_status_key=${hide_status_key:-$default_hide_status_key}
+
 tmux setenv -g OMNIMUX_FLOAT_WIDTH "$float_width"
 tmux setenv -g OMNIMUX_FLOAT_HEIGHT "$float_height"
 tmux setenv -g OMNIMUX_FLOAT_BORDER_COLOR "$float_border_color"
@@ -223,3 +228,4 @@ tmux bind-key "$float_taller_key" run-shell "$CURRENT_DIR/scripts/float.sh talle
 tmux bind-key "$float_shorter_key" run-shell "$CURRENT_DIR/scripts/float.sh shorter"
 tmux bind-key "$float_reset_key" run-shell "$CURRENT_DIR/scripts/float.sh reset-size"
 tmux bind-key "$float_embed_key" run-shell "$CURRENT_DIR/scripts/float.sh embed"
+tmux bind-key "$hide_status_key" run-shell "tmux setw -g status \$(tmux show -g -w status | grep -q off && echo on || echo off)"
