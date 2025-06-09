@@ -28,6 +28,14 @@ https://github.com/user-attachments/assets/1dacec5b-7efb-41ba-a575-fbb2bbf7dac3
 
 https://github.com/user-attachments/assets/f2f54b61-1a56-4c24-8c91-2d7a632871a7
 
+## Scratch Session
+
+https://github.com/user-attachments/assets/5bb3cd76-af30-417c-908b-143b0451de9b
+
+## Embeding Scratch Session
+
+https://github.com/user-attachments/assets/d89964e7-3184-4a2b-ad2a-ba851f22ff8e
+
 ## What It Does
 
 ### Session Management
