@@ -214,12 +214,12 @@ case "$utility_mode" in
 esac
 
 # Float 
-tmux bind-key "$float_key" run-shell "$CURRENT_DIR/scripts/omnimux_float.sh toggle"
-tmux bind-key "$float_menu_key" run-shell "$CURRENT_DIR/scripts/omnimux_float.sh menu"
+tmux bind-key "$float_key" run-shell "$CURRENT_DIR/scripts/float.sh toggle"
+tmux bind-key "$float_menu_key" run-shell "$CURRENT_DIR/scripts/float.sh menu"
 
-tmux bind-key "$float_wider_key" run-shell "$CURRENT_DIR/scripts/omnimux_float.sh wider"
-tmux bind-key "$float_narrower_key" run-shell "$CURRENT_DIR/scripts/omnimux_float.sh narrower"
-tmux bind-key "$float_taller_key" run-shell "$CURRENT_DIR/scripts/omnimux_float.sh taller"
-tmux bind-key "$float_shorter_key" run-shell "$CURRENT_DIR/scripts/omnimux_float.sh shorter"
-tmux bind-key "$float_reset_key" run-shell "$CURRENT_DIR/scripts/omnimux_float.sh reset-size"
-tmux bind-key "$float_embed_key" run-shell "$CURRENT_DIR/scripts/omnimux_float.sh embed"
+tmux bind-key "$float_wider_key" run-shell "$CURRENT_DIR/scripts/float.sh wider"
+tmux bind-key "$float_narrower_key" run-shell "$CURRENT_DIR/scripts/float.sh narrower"
+tmux bind-key "$float_taller_key" run-shell "$CURRENT_DIR/scripts/float.sh taller"
+tmux bind-key "$float_shorter_key" run-shell "$CURRENT_DIR/scripts/float.sh shorter"
+tmux bind-key "$float_reset_key" run-shell "$CURRENT_DIR/scripts/float.sh reset-size"
+tmux bind-key "$float_embed_key" run-shell "$CURRENT_DIR/scripts/float.sh embed"
