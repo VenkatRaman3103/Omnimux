@@ -141,7 +141,7 @@ float_reset_key=${float_reset_key:-$default_float_reset_key}
 float_embed_key=$(tmux show-option -gqv @omnimux-float-embed-key)
 float_embed_key=${float_embed_key:-$default_float_embed_key}
 
-hide_status_key=$(tmux show-option -gqv @omnimux-float-embed-key)
+hide_status_key=$(tmux show-option -gqv @omnimux-hide-status-key)
 hide_status_key=${hide_status_key:-$default_hide_status_key}
 
 tmux setenv -g OMNIMUX_FLOAT_WIDTH "$float_width"
