@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# defaults
 default_key_binding="J"
 default_display_mode="popup"
 default_utility_mode="verbose"
@@ -27,7 +26,23 @@ default_utlity_session_key="j"
 default_utlity_windows_key="k"
 default_utlity_tmuxifier_key="h"
 
-# mapping to keybindings
+# Float
+default_float_key="f"
+default_float_menu_key="F"
+default_float_width="80%"
+default_float_height="80%"
+default_float_border_color="#666666"
+default_float_text_color="white"
+default_float_session_name="scratch"
+
+# Float resize
+default_float_wider_key="M-Right"
+default_float_narrower_key="M-Left"
+default_float_taller_key="M-Up"
+default_float_shorter_key="M-Down"
+default_float_reset_key="M-r"
+default_float_embed_key="M-e"
+
 key_binding=$(tmux show-option -gqv @omnimux-key)
 key_binding=${key_binding:-$default_key_binding}
 
@@ -64,7 +79,7 @@ editor_window_width=${editor_window_width:-$default_editor_window_width}
 editor_window_height=$(tmux show-option -gqv @omnimux-editor-window-height)
 editor_window_height=${editor_window_height:-$default_editor_window_height}
 
-# utility
+# Utility
 utlity_session_key=$(tmux show-option -gqv @omnimux-utility-session-key)
 utlity_session_key=${utlity_session_key:-$default_utlity_session_key}  
 
@@ -83,6 +98,54 @@ utility_window_height=${utility_window_height:-$default_utility_window_height}
 utility_window_width=$(tmux show-option -gqv @omnimux-utility-window-width)
 utility_window_width=${utility_window_width:-$default_utility_window_width}
 
+# Float
+float_key=$(tmux show-option -gqv @omnimux-float-key)
+float_key=${float_key:-$default_float_key}
+
+float_menu_key=$(tmux show-option -gqv @omnimux-float-menu-key)
+float_menu_key=${float_menu_key:-$default_float_menu_key}
+
+float_width=$(tmux show-option -gqv @omnimux-float-width)
+float_width=${float_width:-$default_float_width}
+
+float_height=$(tmux show-option -gqv @omnimux-float-height)
+float_height=${float_height:-$default_float_height}
+
+float_border_color=$(tmux show-option -gqv @omnimux-float-border-color)
+float_border_color=${float_border_color:-$default_float_border_color}
+
+float_text_color=$(tmux show-option -gqv @omnimux-float-text-color)
+float_text_color=${float_text_color:-$default_float_text_color}
+
+float_session_name=$(tmux show-option -gqv @omnimux-float-session-name)
+float_session_name=${float_session_name:-$default_float_session_name}
+
+# Float resize
+float_wider_key=$(tmux show-option -gqv @omnimux-float-wider-key)
+float_wider_key=${float_wider_key:-$default_float_wider_key}
+
+float_narrower_key=$(tmux show-option -gqv @omnimux-float-narrower-key)
+float_narrower_key=${float_narrower_key:-$default_float_narrower_key}
+
+float_taller_key=$(tmux show-option -gqv @omnimux-float-taller-key)
+float_taller_key=${float_taller_key:-$default_float_taller_key}
+
+float_shorter_key=$(tmux show-option -gqv @omnimux-float-shorter-key)
+float_shorter_key=${float_shorter_key:-$default_float_shorter_key}
+
+float_reset_key=$(tmux show-option -gqv @omnimux-float-reset-key)
+float_reset_key=${float_reset_key:-$default_float_reset_key}
+
+float_embed_key=$(tmux show-option -gqv @omnimux-float-embed-key)
+float_embed_key=${float_embed_key:-$default_float_embed_key}
+
+tmux setenv -g OMNIMUX_FLOAT_WIDTH "$float_width"
+tmux setenv -g OMNIMUX_FLOAT_HEIGHT "$float_height"
+tmux setenv -g OMNIMUX_FLOAT_BORDER_COLOR "$float_border_color"
+tmux setenv -g OMNIMUX_FLOAT_TEXT_COLOR "$float_text_color"
+tmux setenv -g OMNIMUX_FLOAT_SESSION_NAME "$float_session_name"
+
+# Omnimux
 case "$display_mode" in
     "popup")
         tmux bind-key "$key_binding" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/omnimux_main.sh"
@@ -95,6 +158,7 @@ case "$display_mode" in
         ;;
 esac
 
+# Bookmarks
 case "$display_mode" in
     "popup")
         tmux bind-key "$bookmarks_key" display-popup -E -w "$window_width" -h "$window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/bookmarks_interface.sh"
@@ -110,6 +174,7 @@ case "$display_mode" in
         ;;
 esac
 
+# Editor
 case "$display_mode" in
     "popup")
         tmux bind-key "$edit_session_key" display-popup -E -w "$editor_window_width" -h "$editor_window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/editor_sessions.sh"
@@ -134,7 +199,7 @@ case "$display_mode" in
         ;;
 esac
 
-# utility
+# Utility
 case "$utility_mode" in
     "verbose")
         tmux bind-key "$utlity_session_key" display-popup -E -w "$utility_window_width" -h "$utility_window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/utility/verbose/sessions.sh"
@@ -147,3 +212,14 @@ case "$utility_mode" in
         tmux bind-key "$utlity_tmuxfier_key" display-popup -E -w "$utility_window_width" -h "$utility_window_height" -S "bg=$border_bg fg=$border_fg" "$CURRENT_DIR/scripts/utility/minimal/tmuxifier.sh"
         ;;
 esac
+
+# Float 
+tmux bind-key "$float_key" run-shell "$CURRENT_DIR/scripts/omnimux_float.sh toggle"
+tmux bind-key "$float_menu_key" run-shell "$CURRENT_DIR/scripts/omnimux_float.sh menu"
+
+tmux bind-key "$float_wider_key" run-shell "$CURRENT_DIR/scripts/omnimux_float.sh wider"
+tmux bind-key "$float_narrower_key" run-shell "$CURRENT_DIR/scripts/omnimux_float.sh narrower"
+tmux bind-key "$float_taller_key" run-shell "$CURRENT_DIR/scripts/omnimux_float.sh taller"
+tmux bind-key "$float_shorter_key" run-shell "$CURRENT_DIR/scripts/omnimux_float.sh shorter"
+tmux bind-key "$float_reset_key" run-shell "$CURRENT_DIR/scripts/omnimux_float.sh reset-size"
+tmux bind-key "$float_embed_key" run-shell "$CURRENT_DIR/scripts/omnimux_float.sh embed"
