@@ -214,7 +214,7 @@ case "$utility_mode" in
 esac
 
 # Float 
-tmux bind-key "$float_key" run-shell "$CURRENT_DIR/scripts/float.sh toggle"
+tmux bind-key "$float_key" run-shell "$CURRENT_DIR/scripts/float.sh"
 tmux bind-key "$float_menu_key" run-shell "$CURRENT_DIR/scripts/float.sh menu"
 
 tmux bind-key "$float_wider_key" run-shell "$CURRENT_DIR/scripts/float.sh wider"
