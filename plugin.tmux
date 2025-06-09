@@ -28,7 +28,7 @@ default_utlity_tmuxifier_key="h"
 
 # Float
 default_float_key="f"
-default_float_menu_key="F"
+default_float_menu_key="m"
 default_float_width="80%"
 default_float_height="80%"
 default_float_border_color="#666666"

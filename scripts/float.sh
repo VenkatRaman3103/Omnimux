@@ -16,6 +16,7 @@ FLOAT_BORDER_STYLE=$(get_tmux_option "@omnimux-float-border-style" "rounded")
 FLOAT_SIZE_STEP=$(get_tmux_option "@omnimux-float-size-step" "10")
 FLOAT_MIN_SIZE=$(get_tmux_option "@omnimux-float-min-size" "10")
 FLOAT_MAX_SIZE=$(get_tmux_option "@omnimux-float-max-size" "100")
+FLOAT_SHOW_STATUS=$(get_tmux_option "@omnimux-float-show-status" "off")
 
 envvar_value() {
     local value
@@ -179,6 +180,7 @@ show_popup() {
     fi
     
     tmux set-option -t "$scratch_session_name" detach-on-destroy on
+    tmux set-option -t "$scratch_session_name" status "$FLOAT_SHOW_STATUS"
     
     tmux popup \
         -S fg="$(envvar_value OMNIMUX_FLOAT_BORDER_COLOR)" \
