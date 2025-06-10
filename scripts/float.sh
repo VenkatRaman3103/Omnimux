@@ -368,7 +368,7 @@ move_to_float() {
     scratch_session_name=$(get_session_specific_scratch_name "$current_session")
     
     if ! tmux has-session -t "$scratch_session_name" 2>/dev/null; then
-        tmux new-session -d -c "$(tmux display-message -p '#{pane_current_path}')" -s "$scratch_session_name"
+        tmux new-session -d -c "$(tmux display-message -p '#{pane_current_path}')" -s "$scratch_session_name" >/dev/null 2>&1
         tmux setenv -t "$scratch_session_name" ORIGIN_SESSION "$current_session"
         
         local omnimux_float_width omnimux_float_height
@@ -382,30 +382,17 @@ move_to_float() {
     number_of_windows=$(tmux list-windows -t "$current_session" 2>/dev/null | wc -l)
     
     if [ "$number_of_windows" -le 1 ]; then
-        echo "Creating backup window in origin session..."
-        if ! tmux neww -d -t "$current_session" 2>/dev/null; then
-            echo "Warning: Could not create backup window"
-        fi
+        tmux neww -d -t "$current_session" >/dev/null 2>&1
     fi
     
-    current_window=$(tmux display-message -p '#{window_index}')
-    
-    echo "Moving window $current_window to floating session $scratch_session_name..."
-    
-    if tmux movew -t "$scratch_session_name" 2>/dev/null; then
-        echo "Successfully moved window to floating session"
-        
+    if tmux movew -t "$scratch_session_name" >/dev/null 2>&1; then
         tmux set-option -t "$scratch_session_name" detach-on-destroy on
         tmux set-option -t "$scratch_session_name" status "$FLOAT_SHOW_STATUS"
         
         show_popup
         return 0
     else
-        echo "Error: Failed to move window to floating session"
-        
-        if tmux break-pane -t "$scratch_session_name" 2>/dev/null; then
-            echo "Successfully moved pane to floating session as new window"
-            
+        if tmux break-pane -t "$scratch_session_name" >/dev/null 2>&1; then
             tmux set-option -t "$scratch_session_name" detach-on-destroy on
             tmux set-option -t "$scratch_session_name" status "$FLOAT_SHOW_STATUS"
             
