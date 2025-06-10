@@ -245,6 +245,7 @@ show_menu() {
     else
         tmux menu \
             "show popup" g "run \"$script_path toggle\"" \
+            "move to float" f "run \"$script_path to-float\"" \
             "" \
             "Current Size: ${current_width} x ${current_height}" "" "" \
             "" \
@@ -354,6 +355,69 @@ embed_window() {
     fi
 }
 
+move_to_float() {
+    local current_session scratch_session_name current_window number_of_windows
+    
+    current_session=$(tmux display-message -p '#{session_name}')
+    
+    if is_scratch_session "$current_session" || is_in_popup; then
+        tmux display-message -d 2000 "Already in floating session"
+        return 1
+    fi
+    
+    scratch_session_name=$(get_session_specific_scratch_name "$current_session")
+    
+    if ! tmux has-session -t "$scratch_session_name" 2>/dev/null; then
+        tmux new-session -d -c "$(tmux display-message -p '#{pane_current_path}')" -s "$scratch_session_name"
+        tmux setenv -t "$scratch_session_name" ORIGIN_SESSION "$current_session"
+        
+        local omnimux_float_width omnimux_float_height
+        omnimux_float_width=$(tmux showenv -g OMNIMUX_FLOAT_WIDTH 2>/dev/null | cut -d '=' -f 2- || echo "$FLOAT_WIDTH")
+        omnimux_float_height=$(tmux showenv -g OMNIMUX_FLOAT_HEIGHT 2>/dev/null | cut -d '=' -f 2- || echo "$FLOAT_HEIGHT")
+        
+        tmux setenv -t "$scratch_session_name" SCRATCH_WIDTH "$omnimux_float_width"
+        tmux setenv -t "$scratch_session_name" SCRATCH_HEIGHT "$omnimux_float_height"
+    fi
+    
+    number_of_windows=$(tmux list-windows -t "$current_session" 2>/dev/null | wc -l)
+    
+    if [ "$number_of_windows" -le 1 ]; then
+        echo "Creating backup window in origin session..."
+        if ! tmux neww -d -t "$current_session" 2>/dev/null; then
+            echo "Warning: Could not create backup window"
+        fi
+    fi
+    
+    current_window=$(tmux display-message -p '#{window_index}')
+    
+    echo "Moving window $current_window to floating session $scratch_session_name..."
+    
+    if tmux movew -t "$scratch_session_name" 2>/dev/null; then
+        echo "Successfully moved window to floating session"
+        
+        tmux set-option -t "$scratch_session_name" detach-on-destroy on
+        tmux set-option -t "$scratch_session_name" status "$FLOAT_SHOW_STATUS"
+        
+        show_popup
+        return 0
+    else
+        echo "Error: Failed to move window to floating session"
+        
+        if tmux break-pane -t "$scratch_session_name" 2>/dev/null; then
+            echo "Successfully moved pane to floating session as new window"
+            
+            tmux set-option -t "$scratch_session_name" detach-on-destroy on
+            tmux set-option -t "$scratch_session_name" status "$FLOAT_SHOW_STATUS"
+            
+            show_popup
+            return 0
+        else
+            tmux display-message -d 3000 "Error: Could not move window or pane to floating session"
+            return 1
+        fi
+    fi
+}
+
 case "${1:-toggle}" in
     toggle)
         toggle
@@ -363,6 +427,9 @@ case "${1:-toggle}" in
         ;;
     embed)
         embed_window
+        ;;
+    to-float)
+        move_to_float
         ;;
     wider)
         resize_popup "width" "$FLOAT_SIZE_STEP"
@@ -380,12 +447,13 @@ case "${1:-toggle}" in
         reset_size
         ;;
     *)
-        echo "Usage: $0 {toggle|menu|embed|wider|narrower|taller|shorter|reset-size}"
+        echo "Usage: $0 {toggle|menu|embed|to-float|wider|narrower|taller|shorter|reset-size}"
         echo ""
         echo "Commands:"
         echo "  toggle      - Toggle session-specific scratch popup (default)"
         echo "  menu        - Show context menu"
         echo "  embed       - Embed current window in original session"
+        echo "  to-float    - Move current window to floating session"
         echo "  wider       - Increase popup width by ${FLOAT_SIZE_STEP}%"
         echo "  narrower    - Decrease popup width by ${FLOAT_SIZE_STEP}%"
         echo "  taller      - Increase popup height by ${FLOAT_SIZE_STEP}%"
