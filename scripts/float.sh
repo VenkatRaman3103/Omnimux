@@ -336,23 +336,23 @@ embed_window() {
     local current_window
     current_window=$(tmux display-message -p '#{window_index}')
     
-    # echo "Moving window $current_window to session $origin_session..."
-    # 
-    # if tmux movew -t "$origin_session" 2>/dev/null; then
-    #     echo "Successfully moved window to $origin_session"
-    #     tmux detach-client
-    #     return 0
-    # else
-    #     echo "Error: Failed to move window to $origin_session"
-    #     if tmux break-pane -t "$origin_session" 2>/dev/null; then
-    #         echo "Successfully moved pane to $origin_session as new window"
-    #         tmux detach-client
-    #         return 0
-    #     else
-    #         tmux display-message -d 3000 "Error: Could not move window or pane to target session"
-    #         return 1
-    #     fi
-    # fi
+    echo "Moving window $current_window to session $origin_session..."
+    
+    if tmux movew -t "$origin_session" 2>/dev/null; then
+        echo "Successfully moved window to $origin_session"
+        tmux detach-client
+        return 0
+    else
+        echo "Error: Failed to move window to $origin_session"
+        if tmux break-pane -t "$origin_session" 2>/dev/null; then
+            echo "Successfully moved pane to $origin_session as new window"
+            tmux detach-client
+            return 0
+        else
+            tmux display-message -d 3000 "Error: Could not move window or pane to target session"
+            return 1
+        fi
+    fi
 }
 
 move_to_float() {
