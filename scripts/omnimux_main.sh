@@ -1,5 +1,13 @@
 #!/bin/bash
 
+CACHE_DIR="/tmp/omnimux_$$"
+mkdir -p "$CACHE_DIR"
+
+cleanup() {
+    rm -rf "$CACHE_DIR" 2>/dev/null
+}
+trap cleanup EXIT
+
 get_tmux_option() {
     local option="$1"
     local default_value="$2"
@@ -18,70 +26,79 @@ hex_to_ansi() {
     printf "\033[38;2;%d;%d;%dm" "$r" "$g" "$b"
 }
 
-ACTIVE_BG=$(get_tmux_option "@omnimux-active-bg" "#444444")
-ACTIVE_FG=$(get_tmux_option "@omnimux-active-fg" "#ffffff")
-INACTIVE_BG=$(get_tmux_option "@omnimux-inactive-bg" "#222222")
-INACTIVE_FG=$(get_tmux_option "@omnimux-inactive-fg" "#777777")
+load_options() {
+    ACTIVE_BG=$(get_tmux_option "@omnimux-active-bg" "#444444")
+    ACTIVE_FG=$(get_tmux_option "@omnimux-active-fg" "#ffffff")
+    INACTIVE_BG=$(get_tmux_option "@omnimux-inactive-bg" "#222222")
+    INACTIVE_FG=$(get_tmux_option "@omnimux-inactive-fg" "#777777")
 
-TMUXIFIER_MARK_HEX=$(get_tmux_option "@omnimux-tmuxifier-mark-color" "#333333")
-TMUXIFIER_COLOR=$(hex_to_ansi "$TMUXIFIER_MARK_HEX")
+    TMUXIFIER_MARK_HEX=$(get_tmux_option "@omnimux-tmuxifier-mark-color" "#333333")
+    TMUXIFIER_COLOR=$(hex_to_ansi "$TMUXIFIER_MARK_HEX")
 
-ZOXIDE_MARK_HEX=$(get_tmux_option "@omnimux-zoxide-mark-color" "#333333")
-ZOXIDE_COLOR=$(hex_to_ansi "$ZOXIDE_MARK_HEX")
+    ZOXIDE_MARK_HEX=$(get_tmux_option "@omnimux-zoxide-mark-color" "#333333")
+    ZOXIDE_COLOR=$(hex_to_ansi "$ZOXIDE_MARK_HEX")
 
-FIND_MARK_HEX=$(get_tmux_option "@omnimux-find-mark-color" "#333333")
-FIND_COLOR=$(hex_to_ansi "$FIND_MARK_HEX")
+    FIND_MARK_HEX=$(get_tmux_option "@omnimux-find-mark-color" "#333333")
+    FIND_COLOR=$(hex_to_ansi "$FIND_MARK_HEX")
 
-TMUX_HEX=$(get_tmux_option "@omnimux-tmux-color" "#333333")
-TMUX_COLOR=$(hex_to_ansi "$TMUX_HEX")
-TMUX_MARK_HEX=$(get_tmux_option "@omnimux-tmux-mark-color" "#333333")
-TMUX_MARK_COLOR=$(hex_to_ansi "$TMUX_MARK_HEX")
+    TMUX_HEX=$(get_tmux_option "@omnimux-tmux-color" "#333333")
+    TMUX_COLOR=$(hex_to_ansi "$TMUX_HEX")
+    TMUX_MARK_HEX=$(get_tmux_option "@omnimux-tmux-mark-color" "#333333")
+    TMUX_MARK_COLOR=$(hex_to_ansi "$TMUX_MARK_HEX")
 
-ACTIVE_SESSION_HEX=$(get_tmux_option "@omnimux-active-session-color" "#333333")
-ACTIVE_SESSION_COLOR=$(hex_to_ansi "$ACTIVE_SESSION_HEX")
+    ACTIVE_SESSION_HEX=$(get_tmux_option "@omnimux-active-session-color" "#333333")
+    ACTIVE_SESSION_COLOR=$(hex_to_ansi "$ACTIVE_SESSION_HEX")
 
-TMUX_SESSION_HEX=$(get_tmux_option "@omnimux-tmux-session-color" "#ffffff")
-TMUX_SESSION_COLOR=$(hex_to_ansi "$TMUX_SESSION_HEX")
+    TMUX_SESSION_HEX=$(get_tmux_option "@omnimux-tmux-session-color" "#ffffff")
+    TMUX_SESSION_COLOR=$(hex_to_ansi "$TMUX_SESSION_HEX")
 
-TMUXIFIER_SESSION_HEX=$(get_tmux_option "@omnimux-tmuxifier-session-color" "#87ceeb")
-TMUXIFIER_SESSION_COLOR=$(hex_to_ansi "$TMUXIFIER_SESSION_HEX")
+    TMUXIFIER_SESSION_HEX=$(get_tmux_option "@omnimux-tmuxifier-session-color" "#87ceeb")
+    TMUXIFIER_SESSION_COLOR=$(hex_to_ansi "$TMUXIFIER_SESSION_HEX")
 
-ZOXIDE_PATH_HEX=$(get_tmux_option "@omnimux-zoxide-path-color" "#90ee90")
-ZOXIDE_PATH_COLOR=$(hex_to_ansi "$ZOXIDE_PATH_HEX")
+    ZOXIDE_PATH_HEX=$(get_tmux_option "@omnimux-zoxide-path-color" "#90ee90")
+    ZOXIDE_PATH_COLOR=$(hex_to_ansi "$ZOXIDE_PATH_HEX")
 
-FIND_PATH_HEX=$(get_tmux_option "@omnimux-find-path-color" "#dda0dd")
-FIND_PATH_COLOR=$(hex_to_ansi "$FIND_PATH_HEX")
+    FIND_PATH_HEX=$(get_tmux_option "@omnimux-find-path-color" "#dda0dd")
+    FIND_PATH_COLOR=$(hex_to_ansi "$FIND_PATH_HEX")
 
-NORMAL="\033[0m"
+    NORMAL="\033[0m"
 
-FZF_HEIGHT=$(get_tmux_option "@omnimux-fzf-height" "100%")
-FZF_BORDER=$(get_tmux_option "@omnimux-fzf-border" "none")
-FZF_LAYOUT=$(get_tmux_option "@omnimux-fzf-layout" "no-reverse")
-FZF_WINDOW_LAYOUT=$(get_tmux_option "@omnimux-fzf-window-layout" "reverse")
-FZF_PREVIEW_POSITION=$(get_tmux_option "@omnimux-fzf-preview-position" "bottom:60%")
-FZF_PREVIEW_WINDOW_POSITION=$(get_tmux_option "@omnimux-fzf-preview-window-position" "right:75%")
-FZF_PROMPT=$(get_tmux_option "@omnimux-fzf-prompt" "> ")
-FZF_WINDOW_PROMPT=$(get_tmux_option "@omnimux-fzf-window-prompt" "> ")
-FZF_POINTER=$(get_tmux_option "@omnimux-fzf-pointer" "▶")
-FZF_WINDOW_POINTER=$(get_tmux_option "@omnimux-fzf-window-pointer" "▶")
+    FZF_HEIGHT=$(get_tmux_option "@omnimux-fzf-height" "100%")
+    FZF_BORDER=$(get_tmux_option "@omnimux-fzf-border" "none")
+    FZF_LAYOUT=$(get_tmux_option "@omnimux-fzf-layout" "no-reverse")
+    FZF_WINDOW_LAYOUT=$(get_tmux_option "@omnimux-fzf-window-layout" "reverse")
+    FZF_PREVIEW_POSITION=$(get_tmux_option "@omnimux-fzf-preview-position" "bottom:60%")
+    FZF_PREVIEW_WINDOW_POSITION=$(get_tmux_option "@omnimux-fzf-preview-window-position" "right:75%")
+    FZF_PROMPT=$(get_tmux_option "@omnimux-fzf-prompt" "> ")
+    FZF_WINDOW_PROMPT=$(get_tmux_option "@omnimux-fzf-window-prompt" "> ")
+    FZF_POINTER=$(get_tmux_option "@omnimux-fzf-pointer" "▶")
+    FZF_WINDOW_POINTER=$(get_tmux_option "@omnimux-fzf-window-pointer" "▶")
 
-PREVIEW_ENABLED=$(get_tmux_option "@omnimux-preview-enabled" "false")
+    PREVIEW_ENABLED=$(get_tmux_option "@omnimux-preview-enabled" "false")
 
-LS_COMMAND=$(get_tmux_option "@omnimux-ls-command" "ls -la")
+    LS_COMMAND=$(get_tmux_option "@omnimux-ls-command" "ls -la")
 
-MAX_ZOXIDE_PATHS=$(get_tmux_option "@omnimux-max-zoxide-paths" "20")
-MAX_FIND_PATHS=$(get_tmux_option "@omnimux-max-find-paths" "500")
-FIND_BASE_DIR=$(get_tmux_option "@omnimux-find-base-dir" "$HOME")
-FIND_MAX_DEPTH=$(get_tmux_option "@omnimux-find-max-depth" "5")
-FIND_MIN_DEPTH=$(get_tmux_option "@omnimux-find-min-depth" "1")
-SHOW_PROCESS_COUNT=$(get_tmux_option "@omnimux-show-process-count" "3")
-SHOW_PREVIEW_LINES=$(get_tmux_option "@omnimux-show-preview-lines" "15")
-SHOW_LS_LINES=$(get_tmux_option "@omnimux-show-ls-lines" "20")
-SHOW_GIT_STATUS_LINES=$(get_tmux_option "@omnimux-show-git-status-lines" "10")
+    MAX_ZOXIDE_PATHS=$(get_tmux_option "@omnimux-max-zoxide-paths" "20")
+    MAX_FIND_PATHS=$(get_tmux_option "@omnimux-max-find-paths" "500")
+    FIND_BASE_DIR=$(get_tmux_option "@omnimux-find-base-dir" "$HOME")
+    FIND_MAX_DEPTH=$(get_tmux_option "@omnimux-find-max-depth" "5")
+    FIND_MIN_DEPTH=$(get_tmux_option "@omnimux-find-min-depth" "1")
+    SHOW_PROCESS_COUNT=$(get_tmux_option "@omnimux-show-process-count" "3")
+    SHOW_PREVIEW_LINES=$(get_tmux_option "@omnimux-show-preview-lines" "15")
+    SHOW_LS_LINES=$(get_tmux_option "@omnimux-show-ls-lines" "20")
+    SHOW_GIT_STATUS_LINES=$(get_tmux_option "@omnimux-show-git-status-lines" "10")
 
-DEFAULT_EDITOR=$(get_tmux_option "@omnimux-editor" "${EDITOR:-vim}")
+    DEFAULT_EDITOR=$(get_tmux_option "@omnimux-editor" "${EDITOR:-vim}")
+}
 
 find_tmuxifier() {
+    local cache_file="$CACHE_DIR/tmuxifier_dir"
+    
+    if [ -f "$cache_file" ]; then
+        cat "$cache_file"
+        return 0
+    fi
+
     TMUXIFIER_PATHS=(
         "$HOME/.tmuxifier"
         "$HOME/.local/share/tmuxifier"
@@ -90,6 +107,7 @@ find_tmuxifier() {
 
     for path in "${TMUXIFIER_PATHS[@]}"; do
         if [ -d "$path" ]; then
+            echo "$path" > "$cache_file"
             echo "$path"
             return 0
         fi
@@ -104,6 +122,8 @@ get_tmux_sessions() {
     local current_session_line=""
     local other_sessions=""
     
+    local session_data=$(tmux list-sessions -F "#{session_name}" 2>/dev/null | sort)
+    
     while IFS= read -r session; do
         if [ -n "$session" ]; then 
             if [ "$session" = "$current_session" ]; then
@@ -113,7 +133,7 @@ get_tmux_sessions() {
 "
             fi
         fi
-    done < <(tmux list-sessions -F "#S" 2>/dev/null | sort)
+    done <<< "$session_data"
     
     if [ -n "$current_session_line" ]; then
         sessions="$current_session_line"
@@ -129,47 +149,91 @@ ${other_sessions}"
 }
 
 get_tmuxifier_sessions() {
+    local cache_file="$CACHE_DIR/tmuxifier_sessions"
+    
+    if [ -f "$cache_file" ] && [ $(($(date +%s) - $(stat -c %Y "$cache_file" 2>/dev/null || echo 0))) -lt 5 ]; then
+        cat "$cache_file"
+        return 0
+    fi
+
     local tmuxifier_dir=$(find_tmuxifier)
+    local sessions=""
 
     if [ -n "$tmuxifier_dir" ]; then
         local layouts_dir="${TMUXIFIER_LAYOUT_PATH:-$tmuxifier_dir/layouts}"
 
         if [ -d "$layouts_dir" ]; then
-            find "$layouts_dir" -name "*.session.sh" -exec basename {} \; 2>/dev/null |
+            # Use a more efficient find command
+            sessions=$(find "$layouts_dir" -maxdepth 1 -name "*.session.sh" -printf "%f\n" 2>/dev/null |
                 sed 's/\.session\.sh$//' |
+                sort |
                 while read -r session; do
-                    printf "%b%s%b %b(tmuxifier)%b\n" "${TMUXIFIER_SESSION_COLOR}" "$session" "${NORMAL}" "${TMUXIFIER_COLOR}" "${NORMAL}"
-                done |
-                sort
+                    if [ -n "$session" ]; then
+                        printf "%b%s%b %b(tmuxifier)%b\n" "${TMUXIFIER_SESSION_COLOR}" "$session" "${NORMAL}" "${TMUXIFIER_COLOR}" "${NORMAL}"
+                    fi
+                done)
         fi
     fi
+    
+    echo "$sessions" > "$cache_file"
+    echo "$sessions"
 }
 
 get_zoxide_paths() {
+    local cache_file="$CACHE_DIR/zoxide_paths"
+    
+    if [ -f "$cache_file" ] && [ $(($(date +%s) - $(stat -c %Y "$cache_file" 2>/dev/null || echo 0))) -lt 10 ]; then
+        cat "$cache_file"
+        return 0
+    fi
+
     if command -v zoxide &> /dev/null; then
-        zoxide query -l 2>/dev/null | head -"$MAX_ZOXIDE_PATHS" |
+        local paths=$(zoxide query -l 2>/dev/null | head -"$MAX_ZOXIDE_PATHS" |
             while read -r path; do
-                printf "%b%s%b %b(zoxide)%b\n" "${ZOXIDE_PATH_COLOR}" "$path" "${NORMAL}" "${ZOXIDE_COLOR}" "${NORMAL}"
+                if [ -n "$path" ]; then
+                    printf "%b%s%b %b(zoxide)%b\n" "${ZOXIDE_PATH_COLOR}" "$path" "${NORMAL}" "${ZOXIDE_COLOR}" "${NORMAL}"
+                fi
             done |
-            sort
+            sort)
+        
+        echo "$paths" > "$cache_file"
+        echo "$paths"
     fi
 }
 
 get_find_paths() {
+    local cache_file="$CACHE_DIR/find_paths"
+    
+    if [ -f "$cache_file" ] && [ $(($(date +%s) - $(stat -c %Y "$cache_file" 2>/dev/null || echo 0))) -lt 30 ]; then
+        cat "$cache_file"
+        return 0
+    fi
+
     if [ -d "$FIND_BASE_DIR" ]; then
-        find "$FIND_BASE_DIR" -mindepth "$FIND_MIN_DEPTH" -maxdepth "$FIND_MAX_DEPTH" -type d \
-            \( -name ".git" -o -name ".svn" -o -name ".hg" -o -name "node_modules" -o -name "__pycache__" \) -prune -o \
+        local paths=$(find "$FIND_BASE_DIR" -mindepth "$FIND_MIN_DEPTH" -maxdepth "$FIND_MAX_DEPTH" -type d \
+            \( -name ".git" -o -name ".svn" -o -name ".hg" -o -name "node_modules" -o -name "__pycache__" -o -name ".cache" -o -name ".npm" \) -prune -o \
             -type d -readable -print 2>/dev/null |
             head -"$MAX_FIND_PATHS" |
             while read -r path; do
-                printf "%b%s%b %b(find)%b\n" "${FIND_PATH_COLOR}" "$path" "${NORMAL}" "${FIND_COLOR}" "${NORMAL}"
+                if [ -n "$path" ]; then
+                    printf "%b%s%b %b(find)%b\n" "${FIND_PATH_COLOR}" "$path" "${NORMAL}" "${FIND_COLOR}" "${NORMAL}"
+                fi
             done |
-            sort
+            sort)
+        
+        echo "$paths" > "$cache_file"
+        echo "$paths"
     fi
 }
 
 filter_tmuxifier_sessions() {
-    local active_sessions=$(tmux list-sessions -F "#S" 2>/dev/null)
+    local cache_file="$CACHE_DIR/active_sessions"
+    
+    if [ ! -f "$cache_file" ] || [ $(($(date +%s) - $(stat -c %Y "$cache_file" 2>/dev/null || echo 0))) -gt 2 ]; then
+        tmux list-sessions -F "#S" 2>/dev/null > "$cache_file"
+    fi
+    
+    local active_sessions=$(cat "$cache_file")
     local tmuxifier_sessions=$(get_tmuxifier_sessions)
     local filtered_sessions=""
 
@@ -187,16 +251,28 @@ filter_tmuxifier_sessions() {
 }
 
 get_all_sessions() {
-    local active_sessions=$(get_tmux_sessions)
-    local tmuxifier_sessions=$(filter_tmuxifier_sessions)
-    local zoxide_paths=$(get_zoxide_paths)
-    local find_paths=$(get_find_paths)
-
+    local temp_dir="$CACHE_DIR/parallel"
+    mkdir -p "$temp_dir"
+    
+    get_tmux_sessions > "$temp_dir/tmux" &
+    local tmux_pid=$!
+    
+    filter_tmuxifier_sessions > "$temp_dir/tmuxifier" &
+    local tmuxifier_pid=$!
+    
+    get_zoxide_paths > "$temp_dir/zoxide" &
+    local zoxide_pid=$!
+    
+    get_find_paths > "$temp_dir/find" &
+    local find_pid=$!
+    
+    wait $tmux_pid $tmuxifier_pid $zoxide_pid $find_pid
+    
     {
-        echo "$active_sessions"
-        echo "$tmuxifier_sessions"
-        echo "$zoxide_paths"
-        echo "$find_paths"
+        cat "$temp_dir/tmux" 2>/dev/null
+        cat "$temp_dir/tmuxifier" 2>/dev/null
+        cat "$temp_dir/zoxide" 2>/dev/null
+        cat "$temp_dir/find" 2>/dev/null
     } | sed '/^$/d'
 }
 
@@ -207,7 +283,6 @@ get_session_windows() {
 
 handle_find_path() {
     local path=$1
-
     local session_name=$(basename "$path" | tr '.' '_' | tr ' ' '_' | tr '-' '_')
 
     if tmux has-session -t "$session_name" 2>/dev/null; then
@@ -220,7 +295,6 @@ handle_find_path() {
 
 handle_zoxide_path() {
     local path=$1
-
     local session_name=$(basename "$path" | tr '.' '_' | tr ' ' '_' | tr '-' '_')
 
     if tmux has-session -t "$session_name" 2>/dev/null; then
@@ -253,16 +327,13 @@ switch_session() {
 switch_window() {
     local session=$1
     local window=$2
-
     local window_index=$(echo "$window" | cut -d':' -f1)
-
     tmux select-window -t "$session:$window_index"
 }
 
 rename_window() {
     local session=$1
     local window=$2
-
     local window_index=$(echo "$window" | cut -d':' -f1)
     local current_name=$(echo "$window" | sed 's/^[0-9]*: //' | sed 's/ (active)//')
 
@@ -280,7 +351,6 @@ rename_window() {
 delete_window() {
     local session=$1
     local window=$2
-
     local window_index=$(echo "$window" | cut -d':' -f1)
     local window_name=$(echo "$window" | sed 's/^[0-9]*: //' | sed 's/ (active)//')
     
@@ -308,7 +378,6 @@ delete_window() {
 
 create_window() {
     local session=$1
-    
     local window_name=$(echo "" | fzf --print-query --prompt="New window name (optional): " --header="Press Enter to create window" --reverse)
     
     if [ -n "$window_name" ]; then
@@ -400,13 +469,11 @@ SCRIPT_EOF
     sed -i "s|%SESSION_FILE%|$session_file|g" "$temp_script"
 
     chmod +x "$temp_script"
-
     tmux detach-client -E "exec '$temp_script'"
 }
 
 rename_tmux_session() {
     local old_name=$1
-
     local new_name=$(echo "$old_name" | fzf --print-query --query="$old_name" --prompt="Rename session to: " --header="Press Enter to confirm" --reverse)
 
     if [ -n "$new_name" ] && [ "$new_name" != "$old_name" ]; then
@@ -450,7 +517,6 @@ terminate_tmux_session() {
         return 1
     fi
 
-    # Fixed: Use proper confirmation dialog
     local confirmation=$(echo -e "y\nn" | fzf --header="Terminate session $session? Select 'y' to confirm" --reverse)
 
     if [ "$confirmation" = "y" ]; then
@@ -524,17 +590,11 @@ session_name=\$(echo "\$session_line" | awk '{print \$1}')
 if echo "\$session_line" | grep -q "(tmux)"; then
     printf "\033[1;36mSession:\033[0m \033[1;33m%s\033[0m\n" "\$session_name"
 
-    active_window=\$(tmux list-windows -t "\$session_name" -F "#{window_active} #I" 2>/dev/null | grep "^1" | awk '{print \$2}')
-    if [ -z "\$active_window" ]; then
-        active_window=\$(tmux list-windows -t "\$session_name" -F "#I" 2>/dev/null | head -1)
-    fi
-
-    if [ -n "\$active_window" ]; then
-        active_pane=\$(tmux list-panes -t "\$session_name:\$active_window" -F "#{pane_active} #{pane_id}" 2>/dev/null | grep "^1" | awk '{print \$2}')
-        if [ -z "\$active_pane" ]; then
-            active_pane=\$(tmux list-panes -t "\$session_name:\$active_window" -F "#{pane_id}" 2>/dev/null | head -1)
-        fi
-
+    # Single tmux call to get window and pane info
+    active_info=\$(tmux list-windows -t "\$session_name" -F "#{window_active} #I #{pane_id}" 2>/dev/null | grep "^1" | head -1)
+    if [ -n "\$active_info" ]; then
+        active_pane=\$(echo "\$active_info" | awk '{print \$3}')
+        
         if [ -n "\$active_pane" ]; then
             tmux capture-pane -e -t "\$active_pane" -p 2>/dev/null | head -$SHOW_PREVIEW_LINES
 
@@ -629,22 +689,23 @@ window_index=\$(echo "\$window" | cut -d':' -f1)
 
 echo -e "\033[1;36mWindow Preview:\033[0m \033[1;33m\$window\033[0m\n"
 
-active_pane=\$(tmux list-panes -t "\$session:\$window_index" -F "#{pane_active} #{pane_id}" 2>/dev/null | grep "^1" | awk '{print \$2}')
-if [ -z "\$active_pane" ]; then
-    active_pane=\$(tmux list-panes -t "\$session:\$window_index" -F "#{pane_id}" 2>/dev/null | head -1)
-fi
+# Optimized single tmux call for pane info
+pane_info=\$(tmux list-panes -t "\$session:\$window_index" -F "#{pane_active} #{pane_id} #{pane_pid}" 2>/dev/null | grep "^1" | head -1)
+if [ -n "\$pane_info" ]; then
+    active_pane=\$(echo "\$pane_info" | awk '{print \$2}')
+    pane_pid=\$(echo "\$pane_info" | awk '{print \$3}')
+    
+    if [ -n "\$active_pane" ]; then
+        tmux capture-pane -e -t "\$active_pane" -p 2>/dev/null | head -$SHOW_PREVIEW_LINES
 
-if [ -n "\$active_pane" ]; then
-    tmux capture-pane -e -t "\$active_pane" -p 2>/dev/null | head -$SHOW_PREVIEW_LINES
-
-    echo -e "\n\033[1;36mRunning processes:\033[0m"
-    pane_pid=\$(tmux list-panes -t "\$active_pane" -F "#{pane_pid}" 2>/dev/null | head -1)
-    if [ -n "\$pane_pid" ]; then
-        ps --ppid \$pane_pid -o pid=,cmd= 2>/dev/null | head -$SHOW_PROCESS_COUNT | while read line; do
-            if [ -n "\$line" ]; then
-                echo -e "\033[1;35m\$(echo \$line | awk '{print \$1}')\033[0m \033[1;37m\$(echo \$line | cut -d' ' -f2-)\033[0m"
-            fi
-        done
+        echo -e "\n\033[1;36mRunning processes:\033[0m"
+        if [ -n "\$pane_pid" ]; then
+            ps --ppid \$pane_pid -o pid=,cmd= 2>/dev/null | head -$SHOW_PROCESS_COUNT | while read line; do
+                if [ -n "\$line" ]; then
+                    echo -e "\033[1;35m\$(echo \$line | awk '{print \$1}')\033[0m \033[1;37m\$(echo \$line | cut -d' ' -f2-)\033[0m"
+                fi
+            done
+        fi
     fi
 fi
 WINDOW_PREVIEW_EOF
@@ -702,7 +763,6 @@ ctrl-p      Toggle preview mode (currently: $PREVIEW_ENABLED)
 ?           Show this help menu
 Escape      Exit"
 
-# ctrl-f      Filter/search sessions
     echo "$help_text" | fzf --reverse --header "Keyboard Shortcuts" --prompt "Press Escape to return" --border="$FZF_BORDER" --height="$FZF_HEIGHT"
     main
 }
@@ -738,6 +798,16 @@ handle_session() {
 }
 
 main() {
+    load_options
+    
+    {
+        get_tmux_sessions > /dev/null 2>&1 &
+        get_tmuxifier_sessions > /dev/null 2>&1 &
+        if command -v zoxide &> /dev/null; then
+            get_zoxide_paths > /dev/null 2>&1 &
+        fi
+    }
+    
     local all_sessions=$(get_all_sessions)
 
     if [ -z "$all_sessions" ]; then
@@ -883,4 +953,3 @@ if ! command -v fzf &> /dev/null; then
 fi
 
 main
-

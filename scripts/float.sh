@@ -130,6 +130,7 @@ adjust_size() {
     echo "$new_value"
 }
 
+# Improved resize function with smoother transition
 resize_popup() {
     local dimension="$1"
     local adjustment="$2"
@@ -138,25 +139,37 @@ resize_popup() {
     new_size=$(adjust_size "$dimension" "$adjustment")
     
     if is_in_popup; then
-        local current_session scratch_session_name
+        local current_session scratch_session_name origin_session
         current_session=$(tmux display-message -p '#{session_name}')
         
         if is_scratch_session "$current_session"; then
-            tmux detach-client
-            sleep 0.1
-            local origin_session
+            # Show immediate feedback
+            tmux display-message -d 500 "Resizing ${dimension} to ${new_size}..."
+            
+            # Store current working directory and window state
+            local current_dir current_window
+            current_dir=$(tmux display-message -p '#{pane_current_path}')
+            current_window=$(tmux display-message -p '#{window_index}')
+            
+            # Minimize the time between detach and reattach
             origin_session=$(get_origin_from_scratch "$current_session")
+            
             if tmux has-session -t "$origin_session" 2>/dev/null; then
-                tmux switch-client -t "$origin_session"
-                show_popup
+                # Quick transition: detach -> switch -> show popup immediately
+                (
+                    tmux detach-client
+                    sleep 0.05  # Reduced sleep time
+                    tmux switch-client -t "$origin_session"
+                    show_popup
+                ) &
             fi
         fi
-        tmux display-message -d 1000 "Popup ${dimension} adjusted to ${new_size}"
     else
         tmux display-message -d 1000 "Popup ${dimension} set to ${new_size} (will apply to next popup)"
     fi
 }
 
+# Enhanced popup display with better state preservation
 show_popup() {
     local omnimux_float_width omnimux_float_height current_session scratch_session_name
     
@@ -169,12 +182,16 @@ show_popup() {
     [ -z "$omnimux_float_height" ] && omnimux_float_height="$FLOAT_HEIGHT"
     
     current_session=$(tmux display-message -p '#{session_name}')
-    
     scratch_session_name=$(get_session_specific_scratch_name "$current_session")
     
+    # Create or update scratch session
     if ! tmux has-session -t "$scratch_session_name" 2>/dev/null; then
         tmux new-session -d -c "$(tmux display-message -p '#{pane_current_path}')" -s "$scratch_session_name"
         tmux setenv -t "$scratch_session_name" ORIGIN_SESSION "$current_session"
+        tmux setenv -t "$scratch_session_name" SCRATCH_WIDTH "$omnimux_float_width"
+        tmux setenv -t "$scratch_session_name" SCRATCH_HEIGHT "$omnimux_float_height"
+    else
+        # Update size environment variables in existing scratch session
         tmux setenv -t "$scratch_session_name" SCRATCH_WIDTH "$omnimux_float_width"
         tmux setenv -t "$scratch_session_name" SCRATCH_HEIGHT "$omnimux_float_height"
     fi
@@ -182,10 +199,11 @@ show_popup() {
     tmux set-option -t "$scratch_session_name" detach-on-destroy on
     tmux set-option -t "$scratch_session_name" status "$FLOAT_SHOW_STATUS"
     
+    # Show popup with current dimensions
     tmux popup \
         -S fg="$(envvar_value OMNIMUX_FLOAT_BORDER_COLOR)" \
         -s fg="$(envvar_value OMNIMUX_FLOAT_TEXT_COLOR)" \
-        -T " $(envvar_value OMNIMUX_FLOAT_SESSION_NAME): $current_session " \
+        -T " $(envvar_value OMNIMUX_FLOAT_SESSION_NAME): $current_session [${omnimux_float_width}x${omnimux_float_height}] " \
         -w "$omnimux_float_width" \
         -h "$omnimux_float_height" \
         -b "$FLOAT_BORDER_STYLE" \
@@ -269,16 +287,18 @@ reset_size() {
         current_session=$(tmux display-message -p '#{session_name}')
         
         if is_scratch_session "$current_session"; then
-            tmux detach-client
-            sleep 0.1
+            tmux display-message -d 500 "Resetting to ${FLOAT_WIDTH}x${FLOAT_HEIGHT}..."
             local origin_session
             origin_session=$(get_origin_from_scratch "$current_session")
             if tmux has-session -t "$origin_session" 2>/dev/null; then
-                tmux switch-client -t "$origin_session"
-                show_popup
+                (
+                    tmux detach-client
+                    sleep 0.05
+                    tmux switch-client -t "$origin_session"
+                    show_popup
+                ) &
             fi
         fi
-        tmux display-message -d 1000 "Popup size reset to ${FLOAT_WIDTH}x${FLOAT_HEIGHT}"
     else
         tmux display-message -d 1000 "Popup size reset to ${FLOAT_WIDTH}x${FLOAT_HEIGHT} (will apply to next popup)"
     fi
@@ -289,13 +309,8 @@ embed_window() {
     
     current_session=$(tmux display-message -p '#{session_name}')
     
-    echo "Debug: Current session: $current_session"
-    echo "Debug: In popup: $(is_in_popup && echo "yes" || echo "no")"
-    echo "Debug: Is scratch session: $(is_scratch_session "$current_session" && echo "yes" || echo "no")"
-    
     if is_scratch_session "$current_session"; then
         origin_session=$(get_origin_from_scratch "$current_session")
-        echo "Debug: Origin from session name: $origin_session"
     else
         origin_session=$(tmux showenv -t "$current_session" ORIGIN_SESSION 2>/dev/null | cut -d '=' -f 2-)
         if [ -z "$origin_session" ]; then
@@ -305,20 +320,16 @@ embed_window() {
                             head -1 | \
                             cut -d' ' -f1)
         fi
-        echo "Debug: Origin from environment/fallback: $origin_session"
     fi
     
     if [ -z "$origin_session" ]; then
         origin_session="main"
         if ! tmux has-session -t "$origin_session" 2>/dev/null; then
             tmux new-session -d -s "$origin_session"
-            echo "Created new session: $origin_session"
         fi
-        echo "Using fallback origin session: $origin_session"
     fi
     
     if ! tmux has-session -t "$origin_session" 2>/dev/null; then
-        echo "Origin session '$origin_session' doesn't exist, creating it..."
         tmux new-session -d -s "$origin_session"
     fi
     
@@ -326,26 +337,17 @@ embed_window() {
         number_of_windows=$(tmux list-windows -t "$current_session" 2>/dev/null | wc -l)
         
         if [ "$number_of_windows" -le 1 ]; then
-            echo "Creating backup window in scratch session..."
             if ! tmux neww -d -t "$current_session" 2>/dev/null; then
                 echo "Warning: Could not create backup window"
             fi
         fi
     fi
     
-    local current_window
-    current_window=$(tmux display-message -p '#{window_index}')
-    
-    echo "Moving window $current_window to session $origin_session..."
-    
     if tmux movew -t "$origin_session" 2>/dev/null; then
-        echo "Successfully moved window to $origin_session"
         tmux detach-client
         return 0
     else
-        echo "Error: Failed to move window to $origin_session"
         if tmux break-pane -t "$origin_session" 2>/dev/null; then
-            echo "Successfully moved pane to $origin_session as new window"
             tmux detach-client
             return 0
         else
