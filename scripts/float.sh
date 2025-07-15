@@ -203,7 +203,7 @@ show_popup() {
     tmux popup \
         -S fg="$(envvar_value OMNIMUX_FLOAT_BORDER_COLOR)" \
         -s fg="$(envvar_value OMNIMUX_FLOAT_TEXT_COLOR)" \
-        -T " $(envvar_value OMNIMUX_FLOAT_SESSION_NAME): $current_session [${omnimux_float_width}x${omnimux_float_height}] " \
+        -T " $(envvar_value OMNIMUX_FLOAT_SESSION_NAME): $current_session " \
         -w "$omnimux_float_width" \
         -h "$omnimux_float_height" \
         -b "$FLOAT_BORDER_STYLE" \
