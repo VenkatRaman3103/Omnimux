@@ -28,8 +28,11 @@ selected=$(echo "$sessions" | fzf --no-reverse --header="Tmuxifier Sessions (Ent
 
 if [ -n "$selected" ]; then
     if tmux has-session -t "$selected" 2>/dev/null; then
+        # Session already exists, just switch to it
         tmux switch-client -t "$selected"
     else
-        tmuxifier load-session "$selected"
+        # Create new session in detached mode first, then switch
+        tmuxifier load-session "$selected" --detached
+        tmux switch-client -t "$selected"
     fi
 fi
